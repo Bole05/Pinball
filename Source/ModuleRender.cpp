@@ -25,6 +25,14 @@ bool ModuleRender::Init()
 // PreUpdate: clear buffer
 update_status ModuleRender::PreUpdate()
 {
+    //Metodo Para renderizar mi fondo de juego en azur
+    const Color Color_Top = { 0,119,117,255 };
+    const Color Color_Bottom = { 102,204,255,255 };
+    DrawRectangleGradientV(0, 0, GetScreenWidth(), GetScreenHeight(), Color_Top, Color_Bottom);
+
+
+
+
 	return UPDATE_CONTINUE;
 }
 
