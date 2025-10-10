@@ -23,6 +23,24 @@ bool ModulePhysics::Start()
 {
 	LOG("Creating Physics 2D environment");
 	
+	world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
+	// TODO 3: You need to make ModulePhysics class a contact listener
+
+	// big static circle as "ground" in the middle of the screen
+	int x = (int)(SCREEN_WIDTH / 2);
+	int y = (int)(SCREEN_HEIGHT / 1.5f);
+	int diameter = SCREEN_WIDTH / 2;
+
+
+
+
+
+
+
+
+
+
+
 	return true;
 }
 
