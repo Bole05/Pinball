@@ -165,7 +165,10 @@ bool ModuleGame::Start()
 	box = LoadTexture("Assets/crate.png");
 	rick = LoadTexture("Assets/rick_head.png");
 	paleta = LoadTexture("Assets/Instructions_pc_01.jpg");
-
+	if (paleta.id <= 0)
+	{
+		LOG("Error: No se pudo cargar la textura 'paleta'.");
+	}
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
 	// TODO: Homework - create a sensor
