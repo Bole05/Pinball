@@ -26,10 +26,10 @@ bool ModuleRender::Init()
 update_status ModuleRender::PreUpdate()
 {
     
+    ClearBackground(background);
 
 
-
-
+    BeginDrawing();
 
 	return UPDATE_CONTINUE;
 }
@@ -37,12 +37,12 @@ update_status ModuleRender::PreUpdate()
 // Update: debug camera
 update_status ModuleRender::Update()
 {
-    ClearBackground(background);
+    //ClearBackground(background);
 
-    // NOTE: This function setups render batching system for
-    // maximum performance, all consecutive Draw() calls are
-    // not processed until EndDrawing() is called
-    BeginDrawing();
+    //// NOTE: This function setups render batching system for
+    //// maximum performance, all consecutive Draw() calls are
+    //// not processed until EndDrawing() is called
+    //BeginDrawing();
 
 	return UPDATE_CONTINUE;
 }
