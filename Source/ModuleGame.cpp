@@ -18,7 +18,7 @@ bool ModuleGame::Start()
 {
 	LOG("Loading Intro assets");
 	bool ret = true;
-
+	background = LoadTexture("assets/pinball_table.png");
 	return ret;
 }
 
@@ -26,7 +26,7 @@ bool ModuleGame::Start()
 bool ModuleGame::CleanUp()
 {
 	LOG("Unloading Intro scene");
-
+	DrawTexture(background, 0, 0, WHITE);
 	return true;
 }
 

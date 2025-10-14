@@ -23,6 +23,6 @@ public:
 	bool CleanUp();
 
 public:
-
+	Texture* background = nullptr;
 	
 };
