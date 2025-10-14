@@ -22,7 +22,21 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	void OnCollision(PhysBody* bodyA, PhysBody* bodyB) override;
+
 public:
-	Texture* background = nullptr;
-	
+
+	std::vector<PhysicEntity*> entities;
+
+	PhysBody* sensor;
+	bool sensed;
+
+	Texture2D circle;
+	Texture2D box;
+	Texture2D rick;
+	Texture2D paleta;
+	uint32 bonus_fx;
+
+	vec2<int> ray;
+	bool ray_on;
 };
