@@ -14,6 +14,12 @@
 #define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
 #define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
 
+enum class BodyType {
+	Static,
+	Dynamic,
+	Kinematic
+
+};
 // Module --------------------------------------
 class ModulePhysics : public Module, public b2ContactListener // TODO
 {
@@ -27,7 +33,10 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	
+	b2Body* ModulePhysics::CreateCircle(float x, float y, float radius, BodyType Type);
+	b2Body* ModulePhysics:: CreateRectangle(float x, float y, float width, float height, BodyType type);
+	b2Body* ModulePhysics::CreateChain(float x, float y, int points[], int size, BodyType type);
+
 
 private:
 

@@ -43,7 +43,86 @@ bool ModulePhysics::Start()
 
 	return true;
 }
+b2Body* ModulePhysics::CreateCircle(float x,float y, float radius,BodyType Type) {
+	b2BodyDef bodyDef;
+	bodyDef.position.Set(PIXEL_TO_METERS(x),PIXEL_TO_METERS(y));
 
+	switch(Type)
+	{
+	case BodyType::Static: bodyDef.type = b2_staticBody; break;
+	case BodyType::Dynamic: bodyDef.type = b2_dynamicBody; break;
+	case BodyType::Kinematic: bodyDef.type = b2_kinematicBody; break;
+	}
+
+	b2Body* body = world->CreateBody(&bodyDef);
+	b2CircleShape shape;
+	shape.m_radius =PIXEL_TO_METERS(radius);
+
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	fixture.density = 1.0f;
+	fixture.restitution = 0.8f; // rebote
+	body->CreateFixture(&fixture);
+
+	return body;
+
+}
+b2Body* ModulePhysics::CreateRectangle(float x, float y, float width, float height, BodyType type)
+{
+	b2BodyDef bodyDef;
+	bodyDef.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	switch (type)
+	{
+	case BodyType::Static: bodyDef.type = b2_staticBody; break;
+	case BodyType::Dynamic: bodyDef.type = b2_dynamicBody; break;
+	case BodyType::Kinematic: bodyDef.type = b2_kinematicBody; break;
+	}
+
+	b2Body* body = world->CreateBody(&bodyDef);
+
+	b2PolygonShape shape;
+	shape.SetAsBox(PIXEL_TO_METERS(width / 2), PIXEL_TO_METERS(height / 2));
+
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	fixture.density = 1.0f;
+	fixture.restitution = 0.2f;
+	body->CreateFixture(&fixture);
+
+	return body;
+}
+
+b2Body* ModulePhysics::CreateChain(float x, float y, int points[], int size, BodyType type)
+{
+	b2BodyDef bodyDef;
+	
+	bodyDef.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	switch (type)
+	{
+	case BodyType::Static: bodyDef.type = b2_staticBody; break;
+	case BodyType::Dynamic: bodyDef.type = b2_dynamicBody; break;
+	case BodyType::Kinematic: bodyDef.type = b2_kinematicBody; break;
+	}
+
+	b2Body* body = world->CreateBody(&bodyDef);
+
+	b2Vec2* vertices = new b2Vec2[size / 2];
+	int count = size / 2;
+	for (int i = 0; i < size / 2; ++i)
+		vertices[i].Set(PIXEL_TO_METERS(points[i * 2]), PIXEL_TO_METERS(points[i * 2 + 1]));
+
+	b2ChainShape shape;
+	shape.CreateChain(vertices, count);
+	delete[] vertices;
+
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	body->CreateFixture(&fixture);
+
+	return body;
+}
 update_status ModulePhysics::PreUpdate()
 {
 
