@@ -24,4 +24,3 @@ public:
 
 	Color background;
     Rectangle camera;
-};
