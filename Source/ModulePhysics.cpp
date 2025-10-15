@@ -203,12 +203,12 @@ update_status ModulePhysics::PreUpdate()
 
 	return UPDATE_CONTINUE;
 }
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType type)
 {
 	PhysBody* pbody = new PhysBody();
 
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = type;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
 
@@ -230,10 +230,10 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2BodyType type)
 {
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = type;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -256,10 +256,10 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
+PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, b2BodyType type)
 {
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = type;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -287,6 +287,38 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
 	pbody->width = pbody->height = 0;
 
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
+
+	return pbody;
+}
+
+PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2BodyType type)
+{
+	b2BodyDef body;
+	body.type = type;
+	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	b2Body* b = world->CreateBody(&body);
+
+	b2Vec2* p = new b2Vec2[size / 2];
+	for (int i = 0; i < size / 2; ++i)
+	{
+		p[i].Set(PIXEL_TO_METERS(points[i * 2 + 0]), PIXEL_TO_METERS(points[i * 2 + 1]));
+	}
+
+	b2PolygonShape box;
+	box.Set(p, size / 2);
+
+	b2FixtureDef fixture;
+	fixture.shape = &box;
+	fixture.density = 1.0f;
+	b->CreateFixture(&fixture);
+
+	delete[] p;
+
+	PhysBody* pbody = new PhysBody();
+	pbody->body = b;
+	b->SetUserData(pbody);
+	pbody->width = pbody->height = 0;
 
 	return pbody;
 }
@@ -474,4 +506,19 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if (b && b->listener) {
 		b->listener->OnCollision(b, a);
 	}
+}
+// Añade esta función completa al final del archivo
+void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int anchor_x, int anchor_y)
+{
+	b2RevoluteJointDef revoluteJointDef;
+	revoluteJointDef.bodyA = bodyA->body;
+	revoluteJointDef.bodyB = bodyB->body;
+	revoluteJointDef.collideConnected = false;
+	revoluteJointDef.localAnchorA.Set(PIXEL_TO_METERS(anchor_x), PIXEL_TO_METERS(anchor_y));
+	revoluteJointDef.localAnchorB.Set(0, 0); // La bisagra estará en el origen del flipper
+	revoluteJointDef.enableLimit = true;
+	revoluteJointDef.lowerAngle = -25 * DEGTORAD;
+	revoluteJointDef.upperAngle = 25 * DEGTORAD;
+
+	world->CreateJoint(&revoluteJointDef);
 }

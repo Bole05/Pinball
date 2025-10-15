@@ -103,3 +103,9 @@ bool ModuleRender::DrawText(const char * text, int x, int y, Font font, int spac
 
     return ret;
 }
+// En Source/ModuleRender.cpp
+Texture2D ModuleRender::Load(const char* path)
+{
+    Texture2D texture = LoadTexture(path);
+    return texture;
+}
