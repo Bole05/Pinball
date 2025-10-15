@@ -154,7 +154,7 @@
       </PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\xb123\OneDrive\文档\GitHub\Pinball\Source\external\box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source\external\box2d\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -194,7 +194,7 @@
       </PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(Solution)Source/external/box2d/include;$(Solution)Source/external/box2d/src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source\external\box2d\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
