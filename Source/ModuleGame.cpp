@@ -32,8 +32,8 @@ bool ModuleGame::Start()
     }
 
     // Rotaciones iniciales de los flippers
-    left_flipper_rotation = 20.0f;
-    right_flipper_rotation = -20.0f;
+    left_flipper_rotation = 30.0f;
+    right_flipper_rotation = -30.0f;
 
     return ret;
 }
@@ -58,20 +58,20 @@ update_status ModuleGame::Update()
     // Controles de los flippers (sin cambios)
     if (IsKeyDown(KEY_LEFT))
     {
-        left_flipper_rotation = -35.0f;
+        left_flipper_rotation = -15.0f;
     }
     else
     {
-        left_flipper_rotation = 20.0f;
+        left_flipper_rotation = 30.0f;
     }
 
     if (IsKeyDown(KEY_RIGHT))
     {
-        right_flipper_rotation = 35.0f;
+        right_flipper_rotation = 15.0f;
     }
     else
     {
-        right_flipper_rotation = -20.0f;
+        right_flipper_rotation = -30.0f;
     }
 
     // --- Dibuja todo con los nuevos tamaños y posiciones ---
@@ -93,14 +93,14 @@ update_status ModuleGame::Update()
     // Dibuja el flipper izquierdo (más corto y reposicionado)
     DrawTexturePro(tex_boardL,
         { 0, 0, (float)tex_boardL.width, (float)tex_boardL.height },
-        { 280, 400, 120, 30 }, // Nueva posición y tamaño
+        { 280, 350, 120, 30 }, // Nueva posición y tamaño
         { 0, 15 }, left_flipper_rotation, WHITE); // Pivote y rotación
 
     // --- CORRECCIÓN AQUÍ ---
     // Dibuja el flipper derecho (más corto y reposicionado)
     DrawTexturePro(tex_boardR,
         { 0, 0, (float)tex_boardR.width, (float)tex_boardR.height },
-        { 520, 400, 120, 30 }, // Nueva posición y tamaño
+        { 520, 350, 120, 30 }, // Nueva posición y tamaño
         { 120, 15 }, right_flipper_rotation, WHITE); // Pivote y rotación
 
     // Dibuja otros elementos estáticos (reposicionados para la nueva vista)
