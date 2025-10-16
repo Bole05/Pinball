@@ -1,51 +1,29 @@
 #pragma once
-
-#include "Globals.h"
 #include "Module.h"
-
-#include "p2Point.h"
-
+#include "Globals.h"
 #include "raylib.h"
-#include <vector>
-
-class PhysBody;
-class PhysicEntity;
-
 
 class ModuleGame : public Module
 {
 public:
-	ModuleGame(Application* app, bool start_enabled = true);
-	~ModuleGame();
+    ModuleGame(Application* app, bool start_enabled = true);
+    ~ModuleGame();
 
-	bool Start();
-	update_status Update();
-	bool CleanUp();
-
-	void OnCollision(PhysBody* bodyA, PhysBody* bodyB) override;
+    bool Start();
+    update_status Update();
+    bool CleanUp();
 
 public:
+    // Textures
+    Texture2D tex_ball;
+    Texture2D tex_boardL;
+    Texture2D tex_boardR;
+    Texture2D tex_crate;
+    Texture2D tex_game_back2;
+    Texture2D tex_rick_head;
+    Texture2D tex_wheel;
 
-	std::vector<PhysicEntity*> entities;
-
-	PhysBody* sensor;
-	bool sensed;
-
-	PhysBody* background;
-	PhysBody* ball;
-	// Añade variables para los flippers
-	PhysBody* left_flipper;
-	PhysBody* right_flipper;
-	PhysBody* left_flipper_anchor;
-	PhysBody* right_flipper_anchor;
-
-	Texture2D tex_ball;
-	Texture2D circle;
-	Texture2D box;
-	Texture2D rick;
-	Texture2D paleta;
-	uint32 bonus_fx;
-
-	vec2<int> ray;
-	bool ray_on;
+    // Flipper properties
+    float left_flipper_rotation = 0.0f;
+    float right_flipper_rotation = 0.0f;
 };
