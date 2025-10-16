@@ -17,7 +17,7 @@
 class PhysBody
 {
 public:
-	PhysBody() : body(NULL), listener(nullptr)
+	PhysBody() : body(NULL), listener(nullptr),width(0),height(0)
 	{
 	}
 
@@ -48,7 +48,7 @@ public:
 	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType type = b2_dynamicBody);
 	PhysBody* CreateRectangle(int x, int y, int width, int height, b2BodyType type = b2_dynamicBody);
 	/*PhysBody* CreateRectangleSensor(int x, int y, int width, int height);*/
-	PhysBody* CreateChain(int x, int y, int* points, int size, b2BodyType type = b2_staticBody);
+	PhysBody* CreateChain(int x, int y, const int* points, int size, b2BodyType type = b2_staticBody);
 	PhysBody* CreatePolygon(int x, int y, int* points, int size, b2BodyType type = b2_dynamicBody);
 
 	void BeginContact(b2Contact* contact) override;

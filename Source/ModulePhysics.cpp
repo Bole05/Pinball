@@ -11,6 +11,7 @@
 
 ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
+	world = nullptr;
 	debug = true;
 }
 
@@ -256,7 +257,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, b2BodyType type)
+PhysBody* ModulePhysics::CreateChain(int x, int y,const int* points, int size, b2BodyType type)
 {
 	b2BodyDef body;
 	body.type = type;
@@ -302,7 +303,9 @@ PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2Bo
 	b2Vec2* p = new b2Vec2[size / 2];
 	for (int i = 0; i < size / 2; ++i)
 	{
-		p[i].Set(PIXEL_TO_METERS(points[i * 2 + 0]), PIXEL_TO_METERS(points[i * 2 + 1]));
+		p[i].x = PIXEL_TO_METERS(points[i * 2 + 0]);
+		p[i].y = PIXEL_TO_METERS(points[i * 2 + 1]);
+
 	}
 
 	b2PolygonShape box;
@@ -317,7 +320,7 @@ PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2Bo
 
 	PhysBody* pbody = new PhysBody();
 	pbody->body = b;
-	b->SetUserData(pbody);
+	b->GetUserData().pointer = reinterpret_cast<uintptr_t>(pbody);
 	pbody->width = pbody->height = 0;
 
 	return pbody;
