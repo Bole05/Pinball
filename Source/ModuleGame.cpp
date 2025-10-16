@@ -18,22 +18,20 @@ bool ModuleGame::Start()
     LOG("Loading Game assets");
     bool ret = true;
 
-    // Load textures
+    // Carga de texturas (sin cambios)
     tex_ball = App->renderer->Load("Assets/ball0001.png");
     tex_boardL = App->renderer->Load("Assets/boardL.png");
     tex_boardR = App->renderer->Load("Assets/boardR.png");
 
-    // --- CORRECCIÓN AQUÍ ---
-    // Cambiado "game_back2.jpg" a "game_back.jpg"
-    tex_game_back2 = App->renderer->Load("Assets/game_back2.jpg");
+    tex_game_back2 = App->renderer->Load("Assets/game_back2.png");
 
-    // Añadida una comprobación de error
+
     if (tex_game_back2.id <= 0)
     {
         LOG("ERROR: No se pudo cargar la textura de fondo 'Assets/game_back.jpg'");
     }
 
-    // Initial flipper rotations
+    // Rotaciones iniciales de los flippers
     left_flipper_rotation = 20.0f;
     right_flipper_rotation = -20.0f;
 
@@ -57,26 +55,26 @@ bool ModuleGame::CleanUp()
 // Update game logic and draw
 update_status ModuleGame::Update()
 {
-    // --- Flipper controls ---
+    // Controles de los flippers (sin cambios)
     if (IsKeyDown(KEY_LEFT))
     {
-        left_flipper_rotation = -35.0f; // Flipper goes up
+        left_flipper_rotation = -35.0f;
     }
     else
     {
-        left_flipper_rotation = 20.0f; // Flipper goes down
+        left_flipper_rotation = 20.0f;
     }
 
     if (IsKeyDown(KEY_RIGHT))
     {
-        right_flipper_rotation = 35.0f; // Flipper goes up
+        right_flipper_rotation = 35.0f;
     }
     else
     {
-        right_flipper_rotation = -20.0f; // Flipper goes down
+        right_flipper_rotation = -20.0f;
     }
 
-    // --- Draw everything ---
+    // --- Dibuja todo con los nuevos tamaños y posiciones ---
 
     // Dibuja el fondo escalado a la pantalla
     DrawTexturePro(tex_game_back2,
@@ -84,33 +82,36 @@ update_status ModuleGame::Update()
         { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT },
         { 0, 0 }, 0.0f, WHITE);
 
-    // Dibuja la bola
+    // --- CORRECCIÓN AQUÍ ---
+    // Dibuja la bola (más pequeña)
     DrawTexturePro(tex_ball,
         { 0, 0, (float)tex_ball.width, (float)tex_ball.height },
-        { 700, 150, 50, 50 }, // Posición y tamaño
-        { 25, 25 }, 0.0f, WHITE); // Origen centrado
+        { 750, 100, 30, 30 }, // Nueva posición y tamaño
+        { 15, 15 }, 0.0f, WHITE); // Origen centrado
 
-    // Dibuja el flipper izquierdo
+    // --- CORRECCIÓN AQUÍ ---
+    // Dibuja el flipper izquierdo (más corto y reposicionado)
     DrawTexturePro(tex_boardL,
         { 0, 0, (float)tex_boardL.width, (float)tex_boardL.height },
-        { 260, 960, 150, 40 }, // Posición y tamaño
-        { 0, 20 }, left_flipper_rotation, WHITE); // Pivote y rotación
+        { 280, 400, 120, 30 }, // Nueva posición y tamaño
+        { 0, 15 }, left_flipper_rotation, WHITE); // Pivote y rotación
 
-    // Dibuja el flipper derecho
+    // --- CORRECCIÓN AQUÍ ---
+    // Dibuja el flipper derecho (más corto y reposicionado)
     DrawTexturePro(tex_boardR,
         { 0, 0, (float)tex_boardR.width, (float)tex_boardR.height },
-        { 540, 960, 150, 40 }, // Posición y tamaño
-        { 150, 20 }, right_flipper_rotation, WHITE); // Pivote y rotación
+        { 520, 400, 120, 30 }, // Nueva posición y tamaño
+        { 120, 15 }, right_flipper_rotation, WHITE); // Pivote y rotación
 
-    // Dibuja otros elementos estáticos
+    // Dibuja otros elementos estáticos (reposicionados para la nueva vista)
     DrawTexturePro(tex_crate, { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
-        { 150, 450, 80, 80 }, { 40, 40 }, 0.0f, WHITE);
+        { 100, 200, 60, 60 }, { 30, 30 }, 0.0f, WHITE);
 
     DrawTexturePro(tex_rick_head, { 0, 0, (float)tex_rick_head.width, (float)tex_rick_head.height },
-        { 400, 250, 120, 120 }, { 60, 60 }, 0.0f, WHITE);
+        { 400, 150, 100, 100 }, { 50, 50 }, 0.0f, WHITE);
 
     DrawTexturePro(tex_wheel, { 0, 0, (float)tex_wheel.width, (float)tex_wheel.height },
-        { 600, 550, 90, 90 }, { 45, 45 }, 0.0f, WHITE);
+        { 650, 250, 70, 70 }, { 35, 35 }, 0.0f, WHITE);
 
     return UPDATE_CONTINUE;
 }
