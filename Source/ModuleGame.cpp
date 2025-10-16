@@ -156,25 +156,25 @@ ModuleGame::~ModuleGame()
 // Load assets
 bool ModuleGame::Start()
 {
-	//LOG("Loading Intro assets");
-	////bool ret = true;
+	LOG("Loading Intro assets");
+	bool ret = true;
 
-	////App->renderer->camera.x = App->renderer->camera.y = 0;
+	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	////circle = LoadTexture("Assets/wheel.png");
-	////box = LoadTexture("Assets/crate.png");
-	////rick = LoadTexture("Assets/rick_head.png");
-	////paleta = LoadTexture("Assets/Instructions_pc_01.jpg");
-	////if (paleta.id <= 0)
-	////{
-	////	LOG("Error: No se pudo cargar la textura 'paleta'.");
-	////}
-	////bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
+	circle = LoadTexture("Assets/wheel.png");
+	box = LoadTexture("Assets/crate.png");
+	rick = LoadTexture("Assets/rick_head.png");
+	paleta = LoadTexture("Assets/Instructions_pc_01.jpg");
+	if (paleta.id <= 0)
+	{
+		LOG("Error: No se pudo cargar la textura 'paleta'.");
+	}
+	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
-	////// TODO: Homework - create a sensor
+	// TODO: Homework - create a sensor
 
-	////return ret;
-	//return true;
+	return ret;
+	/*return true;*/
 	LOG("Loading Game");
 
 	// Crea el contorno de la mesa
@@ -207,7 +207,7 @@ bool ModuleGame::Start()
 	// Carga las texturas
 	tex_ball = App->renderer->Load("Assets/wheel.png");
 	// Necesitarás una imagen para la bola
-	if (tex_ball.id = NULL) {
+	if (tex_ball.id == NULL) {
 		LOG("ERROR");
 	}
 	/*App->physics->CreateRectangleSensor(250, 200, 50, 50);*/
