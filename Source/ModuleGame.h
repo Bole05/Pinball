@@ -2,6 +2,7 @@
 #include "Module.h"
 #include "Globals.h"
 #include "raylib.h"
+#include "ModulePhysics.h"
 
 class ModuleGame : public Module
 {
@@ -26,4 +27,6 @@ public:
     // Flipper properties
     float left_flipper_rotation = 0.0f;
     float right_flipper_rotation = 0.0f;
+
+    PhysBody* ball;
 };

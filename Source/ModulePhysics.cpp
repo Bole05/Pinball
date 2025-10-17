@@ -41,6 +41,7 @@ ModulePhysics::~ModulePhysics()
 		world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
 		world->SetContactListener(this);
 
+
 		// Escala de conversión píxel <-> metro
 		const float SCALE = 0.01f; // 1 px = 0.01 m
 
@@ -201,7 +202,14 @@ ModulePhysics::~ModulePhysics()
 
 update_status ModulePhysics::PreUpdate()
 {
+	float timeStep = 1.0f / 60.0f;
+	int32 velocityIterations = 8;
+	int32 positionIterations = 3;
 
+	world->Step(timeStep, velocityIterations, positionIterations);
+	// -------------------------
+
+	return UPDATE_CONTINUE;
 	return UPDATE_CONTINUE;
 }
 PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType type)

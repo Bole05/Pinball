@@ -4,6 +4,8 @@
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
 
+
+
 ModuleGame::ModuleGame(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
 }
@@ -30,6 +32,9 @@ bool ModuleGame::Start()
     {
         LOG("ERROR: No se pudo cargar la textura de fondo 'Assets/game_back.jpg'");
     }
+
+    ball = App->physics->CreateCircle(400, 240, 15);
+    ball->body->GetFixtureList()->SetRestitution(0.8f);
 
     // Rotaciones iniciales de los flippers
     left_flipper_rotation = 30.0f;
@@ -84,10 +89,16 @@ update_status ModuleGame::Update()
 
     // --- CORRECCIÓN AQUÍ ---
     // Dibuja la bola (más pequeña)
+    //DrawTexturePro(tex_ball,
+    //    { 0, 0, (float)tex_ball.width, (float)tex_ball.height },
+    //    { 750, 100, 30, 30 }, // Nueva posición y tamaño
+    //    { 15, 15 }, 0.0f, WHITE); // Origen centrado
+    int x, y;
+    ball->GetPhysicPosition(x, y);
     DrawTexturePro(tex_ball,
         { 0, 0, (float)tex_ball.width, (float)tex_ball.height },
-        { 750, 100, 30, 30 }, // Nueva posición y tamaño
-        { 15, 15 }, 0.0f, WHITE); // Origen centrado
+        { (float)x, (float)y, 30, 30 }, // Usa las coordenadas del cuerpo físico
+        { 15, 15 }, 0.0f, WHITE);     // Origen centrado
 
     // --- CORRECCIÓN AQUÍ ---
     // Dibuja el flipper izquierdo (más corto y reposicionado)

@@ -6,7 +6,7 @@
 #include "box2d\box2d.h"
 
 #define GRAVITY_X 0.0f
-#define GRAVITY_Y -7.0f
+#define GRAVITY_Y -7.0f // <-- He cambiado este valor
 
 #define PIXELS_PER_METER 50.0f // if touched change METER_PER_PIXEL too
 #define METER_PER_PIXEL 0.02f // this is 1 / PIXELS_PER_METER !
@@ -17,7 +17,7 @@
 class PhysBody
 {
 public:
-	PhysBody() : body(NULL), listener(nullptr),width(0),height(0)
+	PhysBody() : body(NULL), listener(nullptr), width(0), height(0)
 	{
 	}
 
@@ -29,17 +29,16 @@ public:
 public:
 	int width, height;
 	b2Body* body;
-	// TODO 6: Add a pointer to a module that might want to listen to a collision from this body
 	Module* listener;
 };
-// Module --------------------------------------
-class ModulePhysics : public Module, public b2ContactListener // TODO
+
+class ModulePhysics : public Module, public b2ContactListener
 {
 public:
 	ModulePhysics(Application* app, bool start_enabled = true);
 	~ModulePhysics();
 
-	
+
 	bool Start();
 	update_status PreUpdate();
 	update_status PostUpdate();
@@ -47,7 +46,6 @@ public:
 
 	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType type = b2_dynamicBody);
 	PhysBody* CreateRectangle(int x, int y, int width, int height, b2BodyType type = b2_dynamicBody);
-	/*PhysBody* CreateRectangleSensor(int x, int y, int width, int height);*/
 	PhysBody* CreateChain(int x, int y, const int* points, int size, b2BodyType type = b2_staticBody);
 	PhysBody* CreatePolygon(int x, int y, int* points, int size, b2BodyType type = b2_dynamicBody);
 
