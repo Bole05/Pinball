@@ -8,7 +8,7 @@
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y -7.0f // <-- He cambiado este valor
 
-#define PIXELS_PER_METER 50.0f // if touched change METER_PER_PIXEL tooJYT
+#define PIXELS_PER_METER 50.0f // if touched change METER_PER_PIXEL too
 #define METER_PER_PIXEL 0.02f // this is 1 / PIXELS_PER_METER !
 
 #define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
@@ -52,10 +52,11 @@ public:
 	void BeginContact(b2Contact* contact) override;
 	void CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int anchor_x, int anchor_y);
 
-public: // <--- HAZLO PÚBLICO
+public: // <--- CAMBIO AQUÍ
 	b2World* world;
 
 private:
 
 	bool debug;
+	// b2World* world; // <-- MOVIDO A PUBLIC
 };

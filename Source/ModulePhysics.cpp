@@ -1,4 +1,4 @@
-#include "Globals.h"
+Ôªø#include "Globals.h"
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModulePhysics.h"
@@ -42,8 +42,8 @@ bool ModulePhysics::Start()
 	world->SetContactListener(this);
 
 
-	// Escala de conversiÛn pÌxel <-> metro
-	const float SCALE = METER_PER_PIXEL;
+	// Escala de conversi√≥n p√≠xel <-> metro
+	const float SCALE = 0.01f; // 1 px = 0.01 m
 
 	// ---------------------------
 	// ?? Paredes exteriores del tablero
@@ -70,7 +70,7 @@ bool ModulePhysics::Start()
 	walls->CreateFixture(&wallFixture);
 
 	// ---------------------------
-	// ?? Bumpers (cÌrculos rojos)
+	// ?? Bumpers (c√≠rculos rojos)
 	// ---------------------------
 	b2Vec2 bumpers[] = {
 		{256 * SCALE, 150 * SCALE},
@@ -132,14 +132,14 @@ bool ModulePhysics::Start()
 	// ?? Flippers
 	// ---------------------------
 	// --- ELIMINADO ---
-	// La creaciÛn de flippers y joints ahora est· en ModuleGame::Start()
+	// La creaci√≥n de flippers y joints ahora est√° en ModuleGame::Start()
 
 
 	// ---------------------------
 	// ? Bola inicial
 	// ---------------------------
 	// --- ELIMINADO ---
-	// La creaciÛn de la bola ahora est· en ModuleGame::Start()
+	// La creaci√≥n de la bola ahora est√° en ModuleGame::Start()
 
 	return true;
 }
@@ -464,7 +464,7 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 		b->listener->OnCollision(b, a);
 	}
 }
-// AÒade esta funciÛn completa al final del archivo
+// A√±ade esta funci√≥n completa al final del archivo
 void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int anchor_x, int anchor_y)
 {
 	b2RevoluteJointDef revoluteJointDef;
@@ -472,7 +472,7 @@ void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int an
 	revoluteJointDef.bodyB = bodyB->body;
 	revoluteJointDef.collideConnected = false;
 	revoluteJointDef.localAnchorA.Set(PIXEL_TO_METERS(anchor_x), PIXEL_TO_METERS(anchor_y));
-	revoluteJointDef.localAnchorB.Set(0, 0); // La bisagra estar· en el origen del flipper
+	revoluteJointDef.localAnchorB.Set(0, 0); // La bisagra estar√° en el origen del flipper
 	revoluteJointDef.enableLimit = true;
 	revoluteJointDef.lowerAngle = -25 * DEGTORAD;
 	revoluteJointDef.upperAngle = 25 * DEGTORAD;
