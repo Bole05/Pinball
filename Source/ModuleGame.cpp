@@ -48,7 +48,7 @@ bool ModuleGame::Start()
     int flipper_h = 30;
     int left_flipper_pivot_x = 280;
     int left_flipper_pivot_y = 350 + 15; // Posición Y + Origen Y
-    int right_flipper_pivot_x = 520; // Posición X + Origen X
+    int right_flipper_pivot_x = 520 ; // Posición X + Origen X
     int right_flipper_pivot_y = 350 + 15; // Posición Y + Origen Y
 
     // 1. Crear un cuerpo estático para anclar las articulaciones
