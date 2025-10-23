@@ -18,7 +18,167 @@ ModuleGame::ModuleGame(Application* app, bool start_enabled) : Module(app, start
 ModuleGame::~ModuleGame()
 {
 }
+class PhysicEntity
+{
+protected:
 
+    PhysicEntity(PhysBody* _body, Module* listener)
+        : body(_body), listener(listener)
+    {
+        body->listener = listener;
+    }
+
+public:
+    virtual ~PhysicEntity() = default;
+    virtual void Update() = 0;
+
+    virtual int RayHit(vec2<int> ray, vec2<int> mouse, vec2<float>& normal)
+    {
+        return 0;
+    }
+
+protected:
+    PhysBody* body;
+    Module* listener = nullptr;
+};
+
+class PinballWall1 : public PhysicEntity
+{
+public:
+    // Datos de game_back2_coords.txt [cite: 1]
+    // Pivot -400, -240
+    static constexpr int wall_coords[22] = {
+        -130, -98,
+        -109, -82,
+        -107, 115,
+        -70, 158,
+        -65, 158,
+        -60, 146,
+        -95, 101,
+        -94, -96,
+        -122, -117,
+        -131, -115,
+        -131, -99
+    }; [cite:1]
+
+        PinballWall1(ModulePhysics* physics, int _x, int _y, Module* listener, Texture2D _texture)
+        : PhysicEntity(physics->CreateChain(_x, _y, wall_coords, 22), listener)
+        , texture(_texture)
+    {
+
+    }
+
+    void Update() override
+    {
+        // Esta función de dibujo es opcional si la pared no tiene textura
+        // o si es un cuerpo estático que no necesita dibujarse.
+        // La incluyo para que sea igual que el ejemplo de Rick.
+        int x, y;
+        body->GetPhysicPosition(x, y);
+        DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
+    }
+
+private:
+    Texture2D texture;
+};
+
+// -----------------------------------------------------------------
+
+class PinballWall2 : public PhysicEntity
+{
+public:
+    // Datos de game_back2.1coords.txt [cite: 5]
+    // Pivot -400, -240
+    static constexpr int wall_coords[24] = {
+        122, -116,
+        95, -97,
+        95, 100,
+        60, 144,
+        61, 153,
+        64, 157,
+        70, 156,
+        109, 112,
+        108, -83,
+        130, -99,
+        131, -115,
+        123, -117
+    }; [cite:5]
+
+        PinballWall2(ModulePhysics* physics, int _x, int _y, Module* listener, Texture2D _texture)
+        : PhysicEntity(physics->CreateChain(_x, _y, wall_coords, 24), listener)
+        , texture(_texture)
+    {
+
+    }
+
+    void Update() override
+    {
+        int x, y;
+        body->GetPhysicPosition(x, y);
+        DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
+    }
+
+private:
+    Texture2D texture;
+};
+
+// -----------------------------------------------------------------
+
+class PinballWall3 : public PhysicEntity
+{
+public:
+    // Datos de game_back2.2_coords.txt [cite: 3]
+    // Pivot -400, -240
+    static constexpr int wall_coords[60] = {
+        -152, 240,
+        -152, -163,
+        -149, -169,
+        -146, -174,
+        -143, -178,
+        -138, -182,
+        -133, -186,
+        -127, -190,
+        -122, -192,
+        -96, -192,
+        -97, -202,
+        -110, -217,
+        -113, -221,
+        -113, -226,
+        -109, -230,
+        108, -229,
+        112, -226,
+        112, -221,
+        96, -192,
+        118, -192,
+        124, -192,
+        130, -189,
+        138, -184,
+        143, -178,
+        146, -174,
+        149, -169,
+        150, -162,
+        151, 223,
+        151, 240,
+        -152, 240
+    }; [cite:3]
+
+        PinballWall3(ModulePhysics* physics, int _x, int _y, Module* listener, Texture2D _texture)
+        : PhysicEntity(physics->CreateChain(_x, _y, wall_coords, 60), listener)
+        , texture(_texture)
+    {
+
+    }
+
+    void Update() override
+    {
+        int x, y;
+        body->GetPhysicPosition(x, y);
+        DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
+    }
+
+private:
+    Texture2D texture;
+};
 // Load assets
 bool ModuleGame::Start()
 {
@@ -42,7 +202,9 @@ bool ModuleGame::Start()
     ball->body->GetFixtureList()->SetRestitution(0.8f);
 
     // --- Creación de Flippers Físicos ---
-
+    entities.emplace_back(new PinballWall1(App->physics, -400, -240, this, wall_texture1));
+    entities.emplace_back(new PinballWall2(App->physics, -400, -240, this, wall_texture2));
+    entities.emplace_back(new PinballWall3(App->physics, -400, -240, this, wall_texture3));
     // Propiedades de los flippers (basadas en el DrawTexturePro)
     int flipper_w = 120;
     int flipper_h = 30;
