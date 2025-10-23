@@ -34,169 +34,115 @@ ModulePhysics::~ModulePhysics()
 
 	//return true;
 
-	bool ModulePhysics::Start()
+bool ModulePhysics::Start()
+{
+	LOG("Creating Physics 2D environment");
+
+	world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
+	world->SetContactListener(this);
+
+
+	// Escala de conversión píxel <-> metro
+	const float SCALE = METER_PER_PIXEL;
+
+	// ---------------------------
+	// ?? Paredes exteriores del tablero
+	// ---------------------------
+	b2BodyDef wallsDef;
+	wallsDef.type = b2_staticBody;
+	wallsDef.position.Set(0, 0);
+	b2Body* walls = world->CreateBody(&wallsDef);
+
+	b2Vec2 wallVertices[] = {
+		{40 * SCALE, 310 * SCALE},   // esquina inferior izquierda
+		{40 * SCALE, 60 * SCALE},    // lado izquierdo
+		{120 * SCALE, 20 * SCALE},   // curva izquierda superior
+		{380 * SCALE, 20 * SCALE},   // parte superior derecha
+		{470 * SCALE, 60 * SCALE},   // lado derecho
+		{470 * SCALE, 310 * SCALE},  // esquina inferior derecha
+	};
+
+	b2ChainShape wallShape;
+	wallShape.CreateLoop(wallVertices, 6);
+
+	b2FixtureDef wallFixture;
+	wallFixture.shape = &wallShape;
+	walls->CreateFixture(&wallFixture);
+
+	// ---------------------------
+	// ?? Bumpers (círculos rojos)
+	// ---------------------------
+	b2Vec2 bumpers[] = {
+		{256 * SCALE, 150 * SCALE},
+		{210 * SCALE, 170 * SCALE},
+		{300 * SCALE, 170 * SCALE},
+	};
+	float bumperRadius = 18 * SCALE;
+
+	for (int i = 0; i < 3; i++)
 	{
-		LOG("Creating Physics 2D environment");
+		b2BodyDef bumperDef;
+		bumperDef.type = b2_staticBody;
+		bumperDef.position = bumpers[i];
 
-		world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
-		world->SetContactListener(this);
+		b2Body* bumper = world->CreateBody(&bumperDef);
 
+		b2CircleShape bumperShape;
+		bumperShape.m_radius = bumperRadius;
 
-		// Escala de conversión píxel <-> metro
-		const float SCALE = 0.01f; // 1 px = 0.01 m
-
-		// ---------------------------
-		// ?? Paredes exteriores del tablero
-		// ---------------------------
-		b2BodyDef wallsDef;
-		wallsDef.type = b2_staticBody;
-		wallsDef.position.Set(0, 0);
-		b2Body* walls = world->CreateBody(&wallsDef);
-
-		b2Vec2 wallVertices[] = {
-			{40 * SCALE, 310 * SCALE},   // esquina inferior izquierda
-			{40 * SCALE, 60 * SCALE},    // lado izquierdo
-			{120 * SCALE, 20 * SCALE},   // curva izquierda superior
-			{380 * SCALE, 20 * SCALE},   // parte superior derecha
-			{470 * SCALE, 60 * SCALE},   // lado derecho
-			{470 * SCALE, 310 * SCALE},  // esquina inferior derecha
-		};
-
-		b2ChainShape wallShape;
-		wallShape.CreateLoop(wallVertices, 6);
-
-		b2FixtureDef wallFixture;
-		wallFixture.shape = &wallShape;
-		walls->CreateFixture(&wallFixture);
-
-		// ---------------------------
-		// ?? Bumpers (círculos rojos)
-		// ---------------------------
-		b2Vec2 bumpers[] = {
-			{256 * SCALE, 150 * SCALE},
-			{210 * SCALE, 170 * SCALE},
-			{300 * SCALE, 170 * SCALE},
-		};
-		float bumperRadius = 18 * SCALE;
-
-		for (int i = 0; i < 3; i++)
-		{
-			b2BodyDef bumperDef;
-			bumperDef.type = b2_staticBody;
-			bumperDef.position = bumpers[i];
-
-			b2Body* bumper = world->CreateBody(&bumperDef);
-
-			b2CircleShape bumperShape;
-			bumperShape.m_radius = bumperRadius;
-
-			b2FixtureDef bumperFix;
-			bumperFix.shape = &bumperShape;
-			bumperFix.restitution = 1.2f; // rebota fuerte
-			bumper->CreateFixture(&bumperFix);
-		}
-
-		// ---------------------------
-		// ?? Diana izquierda
-		// ---------------------------
-		b2BodyDef targetLeftDef;
-		targetLeftDef.type = b2_staticBody;
-		targetLeftDef.position.Set(150 * SCALE, 130 * SCALE);
-		b2Body* targetLeft = world->CreateBody(&targetLeftDef);
-
-		b2CircleShape targetLeftShape;
-		targetLeftShape.m_radius = 15 * SCALE;
-
-		b2FixtureDef targetLeftFix;
-		targetLeftFix.shape = &targetLeftShape;
-		targetLeftFix.restitution = 0.9f;
-		targetLeft->CreateFixture(&targetLeftFix);
-
-		// ---------------------------
-		// ?? Diana superior (amarilla)
-		// ---------------------------
-		b2BodyDef targetTopDef;
-		targetTopDef.type = b2_staticBody;
-		targetTopDef.position.Set(256 * SCALE, 60 * SCALE);
-		b2Body* targetTop = world->CreateBody(&targetTopDef);
-
-		b2CircleShape targetTopShape;
-		targetTopShape.m_radius = 25 * SCALE;
-
-		b2FixtureDef targetTopFix;
-		targetTopFix.shape = &targetTopShape;
-		targetTopFix.restitution = 1.0f;
-		targetTop->CreateFixture(&targetTopFix);
-
-		// ---------------------------
-		// ?? Flippers
-		// ---------------------------
-		b2BodyDef groundDef;
-		b2Body* ground = world->CreateBody(&groundDef);
-
-		b2Vec2 leftFlipperPivot = { 200 * SCALE, 280 * SCALE };
-		b2Vec2 rightFlipperPivot = { 312 * SCALE, 280 * SCALE };
-		float flipperLength = 45 * SCALE;
-
-		// Flipper izquierdo
-		b2BodyDef leftFlipperDef;
-		leftFlipperDef.type = b2_dynamicBody;
-		leftFlipperDef.position = leftFlipperPivot;
-		b2Body* flipperLeft = world->CreateBody(&leftFlipperDef);
-
-		b2PolygonShape flipperLeftShape;
-		flipperLeftShape.SetAsBox(flipperLength, 5 * SCALE);
-		flipperLeft->CreateFixture(&flipperLeftShape, 1.0f);
-
-		b2RevoluteJointDef jointLeft;
-		jointLeft.bodyA = ground;
-		jointLeft.bodyB = flipperLeft;
-		jointLeft.localAnchorA = leftFlipperPivot;
-		jointLeft.localAnchorB = { 0, 0 };
-		jointLeft.enableLimit = true;
-		jointLeft.lowerAngle = -0.3f;
-		jointLeft.upperAngle = 0.3f;
-		world->CreateJoint(&jointLeft);
-
-		// Flipper derecho
-		b2BodyDef rightFlipperDef;
-		rightFlipperDef.type = b2_dynamicBody;
-		rightFlipperDef.position = rightFlipperPivot;
-		b2Body* flipperRight = world->CreateBody(&rightFlipperDef);
-
-		b2PolygonShape flipperRightShape;
-		flipperRightShape.SetAsBox(flipperLength, 5 * SCALE);
-		flipperRight->CreateFixture(&flipperRightShape, 1.0f);
-
-		b2RevoluteJointDef jointRight;
-		jointRight.bodyA = ground;
-		jointRight.bodyB = flipperRight;
-		jointRight.localAnchorA = rightFlipperPivot;
-		jointRight.localAnchorB = { 0, 0 };
-		jointRight.enableLimit = true;
-		jointRight.lowerAngle = -0.3f;
-		jointRight.upperAngle = 0.3f;
-		world->CreateJoint(&jointRight);
-
-		// ---------------------------
-		// ? Bola inicial
-		// ---------------------------
-		b2BodyDef ballDef;
-		ballDef.type = b2_dynamicBody;
-		ballDef.position.Set(256 * SCALE, 250 * SCALE);
-		b2Body* ball = world->CreateBody(&ballDef);
-
-		b2CircleShape ballShape;
-		ballShape.m_radius = 8 * SCALE;
-
-		b2FixtureDef ballFix;
-		ballFix.shape = &ballShape;
-		ballFix.density = 0.5f;
-		ballFix.restitution = 0.8f;
-		ball->CreateFixture(&ballFix);
-
-		return true;
+		b2FixtureDef bumperFix;
+		bumperFix.shape = &bumperShape;
+		bumperFix.restitution = 1.2f; // rebota fuerte
+		bumper->CreateFixture(&bumperFix);
 	}
+
+	// ---------------------------
+	// ?? Diana izquierda
+	// ---------------------------
+	b2BodyDef targetLeftDef;
+	targetLeftDef.type = b2_staticBody;
+	targetLeftDef.position.Set(150 * SCALE, 130 * SCALE);
+	b2Body* targetLeft = world->CreateBody(&targetLeftDef);
+
+	b2CircleShape targetLeftShape;
+	targetLeftShape.m_radius = 15 * SCALE;
+
+	b2FixtureDef targetLeftFix;
+	targetLeftFix.shape = &targetLeftShape;
+	targetLeftFix.restitution = 0.9f;
+	targetLeft->CreateFixture(&targetLeftFix);
+
+	// ---------------------------
+	// ?? Diana superior (amarilla)
+	// ---------------------------
+	b2BodyDef targetTopDef;
+	targetTopDef.type = b2_staticBody;
+	targetTopDef.position.Set(256 * SCALE, 60 * SCALE);
+	b2Body* targetTop = world->CreateBody(&targetTopDef);
+
+	b2CircleShape targetTopShape;
+	targetTopShape.m_radius = 25 * SCALE;
+
+	b2FixtureDef targetTopFix;
+	targetTopFix.shape = &targetTopShape;
+	targetTopFix.restitution = 1.0f;
+	targetTop->CreateFixture(&targetTopFix);
+
+	// ---------------------------
+	// ?? Flippers
+	// ---------------------------
+	// --- ELIMINADO ---
+	// La creación de flippers y joints ahora está en ModuleGame::Start()
+
+
+	// ---------------------------
+	// ? Bola inicial
+	// ---------------------------
+	// --- ELIMINADO ---
+	// La creación de la bola ahora está en ModuleGame::Start()
+
+	return true;
+}
 //}
 
 
@@ -265,7 +211,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateChain(int x, int y,const int* points, int size, b2BodyType type)
+PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, b2BodyType type)
 {
 	b2BodyDef body;
 	body.type = type;
@@ -337,7 +283,7 @@ PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2Bo
 // 
 update_status ModulePhysics::PostUpdate()
 {
-	
+
 
 	if (IsKeyPressed(KEY_F1))
 	{
@@ -362,7 +308,7 @@ update_status ModulePhysics::PostUpdate()
 				{
 					b2CircleShape* shape = (b2CircleShape*)f->GetShape();
 					b2Vec2 pos = f->GetBody()->GetPosition();
-					
+
 					DrawCircle(METERS_TO_PIXELS(pos.x), METERS_TO_PIXELS(pos.y), (float)METERS_TO_PIXELS(shape->m_radius), Color{0, 0, 0, 128});
 				}
 				break;
@@ -420,11 +366,11 @@ update_status ModulePhysics::PostUpdate()
 				break;
 			}
 
-			
+
 		}
 	}//*/
 
-	
+
 	return UPDATE_CONTINUE;
 }
 
@@ -437,7 +383,7 @@ bool ModulePhysics::CleanUp()
 	LOG("Destroying physics world");
 
 	// Delete the whole physics world!
-	
+
 
 	return true;
 }

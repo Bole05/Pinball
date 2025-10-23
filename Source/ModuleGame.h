@@ -4,6 +4,9 @@
 #include "raylib.h"
 #include "ModulePhysics.h"
 
+// Necesario para b2RevoluteJoint
+#include "box2d/b2_revolute_joint.h"
+
 class ModuleGame : public Module
 {
 public:
@@ -25,8 +28,16 @@ public:
     Texture2D tex_wheel;
 
     // Flipper properties
-    float left_flipper_rotation = 0.0f;
-    float right_flipper_rotation = 0.0f;
+    // float left_flipper_rotation = 0.0f; // Ya no se usa
+    // float right_flipper_rotation = 0.0f; // Ya no se usa
 
+    // PhysBodies
     PhysBody* ball;
+    PhysBody* left_flipper;
+    PhysBody* right_flipper;
+    PhysBody* ground_anchor; // Cuerpo estático para anclar los flippers
+
+    // Joints
+    b2RevoluteJoint* left_joint;
+    b2RevoluteJoint* right_joint;
 };

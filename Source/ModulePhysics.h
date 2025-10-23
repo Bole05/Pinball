@@ -52,8 +52,10 @@ public:
 	void BeginContact(b2Contact* contact) override;
 	void CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int anchor_x, int anchor_y);
 
+public: // <--- HAZLO PÚBLICO
+	b2World* world;
+
 private:
 
 	bool debug;
-	b2World* world;
 };
