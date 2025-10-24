@@ -1,11 +1,6 @@
 #pragma once
 #include "Module.h"
-#include "Globals.h"
-#include "raylib.h"
 #include "ModulePhysics.h"
-
-// Necesario para b2RevoluteJoint
-#include "box2d/b2_revolute_joint.h"
 
 class ModuleGame : public Module
 {
@@ -17,27 +12,24 @@ public:
     update_status Update();
     bool CleanUp();
 
-public:
-    // Textures
-    Texture2D tex_ball;
-    Texture2D tex_boardL;
-    Texture2D tex_boardR;
-    Texture2D tex_crate;
-    Texture2D tex_game_back2;
-    Texture2D tex_rick_head;
-    Texture2D tex_wheel;
+    void CreateWalls();
 
-    // Flipper properties
-    // float left_flipper_rotation = 0.0f; // Ya no se usa
-    // float right_flipper_rotation = 0.0f; // Ya no se usa
+private:
+    // Texturas
+    Texture tex_ball;
+    Texture tex_boardL;
+    Texture tex_boardR;
+    Texture tex_game_back2;
+    Texture tex_crate;
 
-    // PhysBodies
+    // Cuerpos físicos
     PhysBody* ball;
     PhysBody* left_flipper;
     PhysBody* right_flipper;
-    PhysBody* ground_anchor; // Cuerpo estático para anclar los flippers
+    PhysBody* ground_anchor;
 
-    // Joints
+    // Articulaciones
     b2RevoluteJoint* left_joint;
     b2RevoluteJoint* right_joint;
+    void DrawCollisionShapes();
 };

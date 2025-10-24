@@ -3,14 +3,18 @@
 #include "ModuleRender.h"
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
+#include "ModulePhysics.h"
 
 // Necesario para las definiciones de joints
 #include "box2d/box2d.h"
 
+#define PIXEL_TO_METERS(pixel) ((float)pixel * 0.02f)
+#define METERS_TO_PIXEL(meters) ((float)meters * 50.0f)
+#define DEGTORAD 0.0174532925199432957f
+#define RADTODEG 57.295779513082320876f
 
 ModuleGame::ModuleGame(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
-    // Inicializa los punteros a null
     ball = left_flipper = right_flipper = ground_anchor = NULL;
     left_joint = right_joint = NULL;
 }
@@ -19,192 +23,340 @@ ModuleGame::~ModuleGame()
 {
 }
 
-// Load assets
 bool ModuleGame::Start()
 {
     LOG("Loading Game assets");
     bool ret = true;
 
-    // Carga de texturas (sin cambios)
+    // Carga de texturas
     tex_ball = App->renderer->Load("Assets/ball0001.png");
     tex_boardL = App->renderer->Load("Assets/boardL.png");
     tex_boardR = App->renderer->Load("Assets/boardR.png");
-
     tex_game_back2 = App->renderer->Load("Assets/game_back2.png");
+    tex_crate = App->renderer->Load("Assets/crate.png");
 
     if (tex_game_back2.id <= 0)
     {
-        LOG("ERROR: No se pudo cargar la textura de fondo 'Assets/game_back.jpg'");
+        LOG("ERROR: No se pudo cargar la textura de fondo 'Assets/game_back2.png'");
     }
 
     // --- Creación de la Pelota ---
     ball = App->physics->CreateCircle(400, 240, 15);
     ball->body->GetFixtureList()->SetRestitution(0.8f);
+    ball->body->SetType(b2_dynamicBody);
+
+    CreateWalls();
 
     // --- Creación de Flippers Físicos ---
-
-    // Propiedades de los flippers (basadas en el DrawTexturePro)
     int flipper_w = 120;
     int flipper_h = 30;
-    int left_flipper_pivot_x = 280;
-    int left_flipper_pivot_y = 350 + 15; // Posición Y + Origen Y
-    int right_flipper_pivot_x = 520; // Posición X + Origen X
-    int right_flipper_pivot_y = 350 + 15; // Posición Y + Origen Y
 
-    // 1. Crear un cuerpo estático para anclar las articulaciones
+    // Posiciones de pivote en píxeles
+    int left_flipper_pivot_x = 280;
+    int left_flipper_pivot_y = 365;
+    int right_flipper_pivot_x = 520;
+    int right_flipper_pivot_y = 365;
+
+    // 1. Crear cuerpo estático para anclar las articulaciones
     ground_anchor = App->physics->CreateRectangle(0, 0, 1, 1, b2_staticBody);
 
-    // 2. Crear Flipper Izquierdo
-    // Creamos el rectángulo centrado
+    // 2. Crear Flipper Izquierdo - posición centrada respecto al pivote
     int left_flipper_center_x = left_flipper_pivot_x + flipper_w / 2;
     int left_flipper_center_y = left_flipper_pivot_y;
     left_flipper = App->physics->CreateRectangle(left_flipper_center_x, left_flipper_center_y, flipper_w, flipper_h, b2_dynamicBody);
+    left_flipper->body->SetFixedRotation(false);
 
-    // 3. Crear Flipper Derecho
-    // Creamos el rectángulo centrado
+    // 3. Crear Flipper Derecho - posición centrada respecto al pivote
     int right_flipper_center_x = right_flipper_pivot_x - flipper_w / 2;
     int right_flipper_center_y = right_flipper_pivot_y;
     right_flipper = App->physics->CreateRectangle(right_flipper_center_x, right_flipper_center_y, flipper_w, flipper_h, b2_dynamicBody);
+    right_flipper->body->SetFixedRotation(false);
 
-    // 4. Crear Articulación (Joint) Izquierda
+    // 4. Crear Articulación Izquierda CON conversiones correctas
     b2RevoluteJointDef left_joint_def;
+
+    // Configurar los cuerpos
     left_joint_def.bodyA = ground_anchor->body;
     left_joint_def.bodyB = left_flipper->body;
 
-    // Ancla en el mundo (posición del pivote)
-    left_joint_def.localAnchorA.Set(PIXEL_TO_METERS(left_flipper_pivot_x), PIXEL_TO_METERS(left_flipper_pivot_y));
-    // Ancla relativa al centro del flipper
-    left_joint_def.localAnchorB.Set(PIXEL_TO_METERS(-flipper_w / 2), PIXEL_TO_METERS(0));
+    // Ancla en el cuerpo A (ground) - en metros desde el centro del ground_anchor
+    left_joint_def.localAnchorA.Set(0, 0);
 
+    // Ancla en el cuerpo B (flipper) - en metros desde el centro del flipper
+    left_joint_def.localAnchorB.Set(PIXEL_TO_METERS(-flipper_w / 2), 0);
+
+    // Configurar límites y motor
     left_joint_def.enableLimit = true;
-    left_joint_def.lowerAngle = -15 * DEGTORAD; // Límite "pulsado"
-    left_joint_def.upperAngle = 30 * DEGTORAD;  // Límite "reposo"
+    left_joint_def.lowerAngle = -15 * DEGTORAD; // Límite inferior
+    left_joint_def.upperAngle = 30 * DEGTORAD;  // Límite superior
     left_joint_def.enableMotor = true;
     left_joint_def.maxMotorTorque = 1000.0f;
     left_joint_def.motorSpeed = 0.0f;
 
+    // Posición mundial del joint
+    left_joint_def.localAnchorA = ground_anchor->body->GetLocalPoint(b2Vec2(
+        PIXEL_TO_METERS(left_flipper_pivot_x),
+        PIXEL_TO_METERS(left_flipper_pivot_y)
+    ));
+
     left_joint = (b2RevoluteJoint*)App->physics->world->CreateJoint(&left_joint_def);
 
-    // 5. Crear Articulación (Joint) Derecha
+    // 5. Crear Articulación Derecha CON conversiones correctas
     b2RevoluteJointDef right_joint_def;
+
     right_joint_def.bodyA = ground_anchor->body;
     right_joint_def.bodyB = right_flipper->body;
 
-    // Ancla en el mundo (posición del pivote)
-    right_joint_def.localAnchorA.Set(PIXEL_TO_METERS(right_flipper_pivot_x), PIXEL_TO_METERS(right_flipper_pivot_y));
-    // Ancla relativa al centro del flipper
-    right_joint_def.localAnchorB.Set(PIXEL_TO_METERS(flipper_w / 2), PIXEL_TO_METERS(0));
+    right_joint_def.localAnchorA.Set(0, 0);
+    right_joint_def.localAnchorB.Set(PIXEL_TO_METERS(flipper_w / 2), 0);
 
     right_joint_def.enableLimit = true;
-    right_joint_def.lowerAngle = -30 * DEGTORAD; // Límite "reposo"
-    right_joint_def.upperAngle = 15 * DEGTORAD;   // Límite "pulsado"
+    right_joint_def.lowerAngle = -30 * DEGTORAD;
+    right_joint_def.upperAngle = 15 * DEGTORAD;
     right_joint_def.enableMotor = true;
     right_joint_def.maxMotorTorque = 1000.0f;
     right_joint_def.motorSpeed = 0.0f;
 
-    right_joint = (b2RevoluteJoint*)App->physics->world->CreateJoint(&right_joint_def);
+    // Posición mundial del joint
+    right_joint_def.localAnchorA = ground_anchor->body->GetLocalPoint(b2Vec2(
+        PIXEL_TO_METERS(right_flipper_pivot_x),
+        PIXEL_TO_METERS(right_flipper_pivot_y)
+    ));
 
-    // // Rotaciones iniciales (ya no se necesitan)
-    // left_flipper_rotation = 30.0f;
-    // right_flipper_rotation = -30.0f;
+    right_joint = (b2RevoluteJoint*)App->physics->world->CreateJoint(&right_joint_def);
 
     return ret;
 }
 
-// Unload assets
+void ModuleGame::CreateWalls()
+{
+    LOG("Creating pinball walls");
+
+    b2BodyDef wallBodyDef;
+    wallBodyDef.type = b2_staticBody;
+    wallBodyDef.position.Set(0, 0);
+    b2Body* wallBody = App->physics->world->CreateBody(&wallBodyDef);
+
+    // === PARED IZQUIERDA ===
+    b2Vec2 leftVertices[10]; // 10 vértices
+    int leftPoints[20] = {  // 20 valores (10 x 2)
+        -130, -98, -109, -82, -107, 115, -70, 158, -65, 158,
+        -60, 146, -95, 101, -94, -96, -122, -117, -131, -115
+    };
+
+    for (int i = 0; i < 10; i++) {
+        leftVertices[i].Set(PIXEL_TO_METERS(leftPoints[i * 2]), PIXEL_TO_METERS(leftPoints[i * 2 + 1]));
+    }
+
+    b2ChainShape leftChain;
+    leftChain.CreateLoop(leftVertices, 10);
+
+    b2FixtureDef leftFixture;
+    leftFixture.shape = &leftChain;
+    leftFixture.restitution = 0.8f;
+    leftFixture.friction = 0.3f;
+    wallBody->CreateFixture(&leftFixture);
+
+    // === PARED DERECHA ===
+    b2Vec2 rightVertices[11]; // 11 vértices
+    int rightPoints[22] = {  // 22 valores (11 x 2)
+        122, -116, 95, -97, 93, 115, 56, 158, 51, 158,
+        47, 146, 82, 101, 81, -96, 109, -117, 118, -115, 118, -99
+    };
+
+    for (int i = 0; i < 11; i++) {
+        rightVertices[i].Set(PIXEL_TO_METERS(rightPoints[i * 2]), PIXEL_TO_METERS(rightPoints[i * 2 + 1]));
+    }
+
+    b2ChainShape rightChain;
+    rightChain.CreateLoop(rightVertices, 11);
+
+    b2FixtureDef rightFixture;
+    rightFixture.shape = &rightChain;
+    rightFixture.restitution = 0.8f;
+    rightFixture.friction = 0.3f;
+    wallBody->CreateFixture(&rightFixture);
+
+    // === PARED SUPERIOR ===
+    b2Vec2 topVertices[20]; // 20 vértices
+    int topPoints[40] = {   // 40 valores (20 x 2)
+        -152, 240, -152, -163, -149, -169, -146, -174,
+        -143, -178, -138, -182, -133, -186, -127, -190,
+        -122, -192, -96, -192, -97, -202, -110, -217,
+        -113, -221, -113, -226, -109, -230, 108, -229,
+        112, -226, 112, -221, 96, -192, 118, -192
+    };
+
+    for (int i = 0; i < 20; i++) {
+        topVertices[i].Set(PIXEL_TO_METERS(topPoints[i * 2]), PIXEL_TO_METERS(topPoints[i * 2 + 1]));
+    }
+
+    b2ChainShape topChain;
+    topChain.CreateLoop(topVertices, 20);
+
+    b2FixtureDef topFixture;
+    topFixture.shape = &topChain;
+    topFixture.restitution = 0.8f;
+    topFixture.friction = 0.3f;
+    wallBody->CreateFixture(&topFixture);
+
+    LOG("Walls created successfully.");
+}
+
+void ModuleGame::DrawCollisionShapes()
+{
+    // Color para las líneas de colisión (rojo semitransparente)
+    Color collisionColor = { 255, 0, 0, 128 };
+
+    // Dibujar pared izquierda
+    b2Vec2 leftVertices[4] = {
+        {PIXEL_TO_METERS(-130), PIXEL_TO_METERS(-98)},
+        {PIXEL_TO_METERS(-107), PIXEL_TO_METERS(115)},
+        {PIXEL_TO_METERS(-60), PIXEL_TO_METERS(146)},
+        {PIXEL_TO_METERS(-122), PIXEL_TO_METERS(-117)}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int next = (i + 1) % 4;
+        DrawLine(
+            METERS_TO_PIXEL(leftVertices[i].x), METERS_TO_PIXEL(leftVertices[i].y),
+            METERS_TO_PIXEL(leftVertices[next].x), METERS_TO_PIXEL(leftVertices[next].y),
+            collisionColor
+        );
+    }
+
+    // Dibujar pared derecha
+    b2Vec2 rightVertices[4] = {
+        {PIXEL_TO_METERS(122), PIXEL_TO_METERS(-116)},
+        {PIXEL_TO_METERS(93), PIXEL_TO_METERS(115)},
+        {PIXEL_TO_METERS(47), PIXEL_TO_METERS(146)},
+        {PIXEL_TO_METERS(109), PIXEL_TO_METERS(-117)}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int next = (i + 1) % 4;
+        DrawLine(
+            METERS_TO_PIXEL(rightVertices[i].x), METERS_TO_PIXEL(rightVertices[i].y),
+            METERS_TO_PIXEL(rightVertices[next].x), METERS_TO_PIXEL(rightVertices[next].y),
+            collisionColor
+        );
+    }
+
+    // Dibujar pared superior
+    b2Vec2 topVertices[4] = {
+        {PIXEL_TO_METERS(-152), PIXEL_TO_METERS(240)},
+        {PIXEL_TO_METERS(-152), PIXEL_TO_METERS(-163)},
+        {PIXEL_TO_METERS(151), PIXEL_TO_METERS(-162)},
+        {PIXEL_TO_METERS(151), PIXEL_TO_METERS(240)}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int next = (i + 1) % 4;
+        DrawLine(
+            METERS_TO_PIXEL(topVertices[i].x), METERS_TO_PIXEL(topVertices[i].y),
+            METERS_TO_PIXEL(topVertices[next].x), METERS_TO_PIXEL(topVertices[next].y),
+            collisionColor
+        );
+    }
+
+    // Dibujar puntos en los vértices para verlos mejor
+    for (int i = 0; i < 4; i++) {
+        DrawCircle(
+            METERS_TO_PIXEL(leftVertices[i].x), METERS_TO_PIXEL(leftVertices[i].y),
+            3, RED
+        );
+        DrawCircle(
+            METERS_TO_PIXEL(rightVertices[i].x), METERS_TO_PIXEL(rightVertices[i].y),
+            3, BLUE
+        );
+        DrawCircle(
+            METERS_TO_PIXEL(topVertices[i].x), METERS_TO_PIXEL(topVertices[i].y),
+            3, GREEN
+        );
+    }
+}
 bool ModuleGame::CleanUp()
 {
     LOG("Unloading Game scene");
+
+    // Limpiar texturas
     UnloadTexture(tex_ball);
     UnloadTexture(tex_boardL);
     UnloadTexture(tex_boardR);
     UnloadTexture(tex_crate);
     UnloadTexture(tex_game_back2);
-    UnloadTexture(tex_rick_head);
-    UnloadTexture(tex_wheel);
 
-    // Los PhysBody se limpian en el CleanUp de ModulePhysics
-    // pero las joints deben destruirse si es necesario (aunque al destruir el mundo se destruyen)
+    // Los PhysBody se limpian en ModulePhysics
+    // Las joints se destruyen automáticamente al destruir el mundo
 
     return true;
 }
 
-// Update game logic and draw
 update_status ModuleGame::Update()
 {
-    // --- Controles de los flippers (con física) ---
-    float motor_speed = 20.0f; // Velocidad de rotación del flipper
+    // --- Controles de los flippers ---
+    float motor_speed = 10.0f;
 
     if (IsKeyDown(KEY_LEFT))
     {
-        // Mover hacia el límite inferior (-15 grados)
         left_joint->SetMotorSpeed(-motor_speed);
     }
     else
     {
-        // Mover hacia el límite superior (30 grados)
         left_joint->SetMotorSpeed(motor_speed);
     }
 
     if (IsKeyDown(KEY_RIGHT))
     {
-        // Mover hacia el límite superior (15 grados)
         right_joint->SetMotorSpeed(motor_speed);
     }
     else
     {
-        // Mover hacia el límite inferior (-30 grados)
         right_joint->SetMotorSpeed(-motor_speed);
     }
 
-    // --- Dibuja todo con los nuevos tamaños y posiciones ---
+    // --- Dibujar todo ---
 
-    // Dibuja el fondo escalado a la pantalla
+    // Dibujar fondo
     DrawTexturePro(tex_game_back2,
         { 0, 0, (float)tex_game_back2.width, (float)tex_game_back2.height },
         { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT },
         { 0, 0 }, 0.0f, WHITE);
 
-
-    // --- Dibuja la bola (obteniendo datos de PhysBody) ---
+    // Dibujar elementos del juego
     int x, y;
+
+    // Bola
     ball->GetPhysicPosition(x, y);
     DrawTexturePro(tex_ball,
         { 0, 0, (float)tex_ball.width, (float)tex_ball.height },
-        { (float)x, (float)y, 30, 30 }, // Usa las coordenadas del cuerpo físico
-        { 15, 15 },                     // Origen centrado
-        RADTODEG * ball->GetRotation(), // Usa la rotación del cuerpo físico
-        WHITE);
+        { (float)x, (float)y, 30, 30 },
+        { 15, 15 },
+        RADTODEG * ball->GetRotation(), WHITE);
 
-
-    // --- Dibuja el flipper izquierdo (obteniendo datos de PhysBody) ---
+    // Flippers
     left_flipper->GetPhysicPosition(x, y);
     DrawTexturePro(tex_boardL,
         { 0, 0, (float)tex_boardL.width, (float)tex_boardL.height },
-        { (float)x, (float)y, 120, 30 }, // Usa las coordenadas del cuerpo físico
-        { 60, 15 }, // Origen en el centro (120/2, 30/2)
-        RADTODEG * left_flipper->GetRotation(), // Usa la rotación del cuerpo físico
-        WHITE);
+        { (float)x, (float)y, 120, 30 },
+        { 60, 15 },
+        RADTODEG * left_flipper->GetRotation(), WHITE);
 
-
-    // --- Dibuja el flipper derecho (obteniendo datos de PhysBody) ---
     right_flipper->GetPhysicPosition(x, y);
     DrawTexturePro(tex_boardR,
         { 0, 0, (float)tex_boardR.width, (float)tex_boardR.height },
-        { (float)x, (float)y, 120, 30 }, // Usa las coordenadas del cuerpo físico
-        { 60, 15 }, // Origen en el centro (120/2, 30/2)
-        RADTODEG * right_flipper->GetRotation(), // Usa la rotación del cuerpo físico
-        WHITE);
+        { (float)x, (float)y, 120, 30 },
+        { 60, 15 },
+        RADTODEG * right_flipper->GetRotation(), WHITE);
 
-    // Dibuja otros elementos estáticos (sin cambios)
-    DrawTexturePro(tex_crate, { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
-        { 100, 200, 60, 60 }, { 30, 30 }, 0.0f, WHITE);
+    // Crate
+    DrawTexturePro(tex_crate,
+        { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
+        { 100, 200, 60, 60 },
+        { 30, 30 }, 0.0f, WHITE);
 
-    DrawTexturePro(tex_rick_head, { 0, 0, (float)tex_rick_head.width, (float)tex_rick_head.height },
-        { 400, 150, 100, 100 }, { 50, 50 }, 0.0f, WHITE);
-
-    DrawTexturePro(tex_wheel, { 0, 0, (float)tex_wheel.width, (float)tex_wheel.height },
-        { 650, 250, 70, 70 }, { 35, 35 }, 0.0f, WHITE);
+    // 🔴 DIBUJAR LÍNEAS DE COLISIÓN (para debug)
+    DrawCollisionShapes();
 
     return UPDATE_CONTINUE;
 }
