@@ -52,10 +52,10 @@ bool ModuleGame::Start()
     int flipper_h = 30;
 
     // Posiciones de pivote en píxeles
-    int left_flipper_pivot_x = 280;
+    int left_flipper_pivot_x = 260;
     int left_flipper_pivot_y = 365;
-    int right_flipper_pivot_x = 520;
-    int right_flipper_pivot_y = 365;
+    int right_flipper_pivot_x = 540;
+    int right_flipper_pivot_y = 360;
 
     // 1. Crear cuerpo estático para anclar las articulaciones
     ground_anchor = App->physics->CreateRectangle(0, 0, 1, 1, b2_staticBody);
