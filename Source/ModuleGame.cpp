@@ -250,78 +250,6 @@ void ModuleGame::CreateWalls()
     LOG("Walls created successfully.");
 }
 
-void ModuleGame::DrawCollisionShapes()
-{
-    // Color para las líneas de colisión (rojo semitransparente)
-    Color collisionColor = { 255, 0, 0, 128 };
-
-    // Dibujar pared izquierda
-    b2Vec2 leftVertices[4] = {
-        {PIXEL_TO_METERS(-130), PIXEL_TO_METERS(-98)},
-        {PIXEL_TO_METERS(-107), PIXEL_TO_METERS(115)},
-        {PIXEL_TO_METERS(-60), PIXEL_TO_METERS(146)},
-        {PIXEL_TO_METERS(-122), PIXEL_TO_METERS(-117)}
-    };
-
-    for (int i = 0; i < 4; i++) {
-        int next = (i + 1) % 4;
-        DrawLine(
-            METERS_TO_PIXEL(leftVertices[i].x), METERS_TO_PIXEL(leftVertices[i].y),
-            METERS_TO_PIXEL(leftVertices[next].x), METERS_TO_PIXEL(leftVertices[next].y),
-            collisionColor
-        );
-    }
-
-    // Dibujar pared derecha
-    b2Vec2 rightVertices[4] = {
-        {PIXEL_TO_METERS(122), PIXEL_TO_METERS(-116)},
-        {PIXEL_TO_METERS(93), PIXEL_TO_METERS(115)},
-        {PIXEL_TO_METERS(47), PIXEL_TO_METERS(146)},
-        {PIXEL_TO_METERS(109), PIXEL_TO_METERS(-117)}
-    };
-
-    for (int i = 0; i < 4; i++) {
-        int next = (i + 1) % 4;
-        DrawLine(
-            METERS_TO_PIXEL(rightVertices[i].x), METERS_TO_PIXEL(rightVertices[i].y),
-            METERS_TO_PIXEL(rightVertices[next].x), METERS_TO_PIXEL(rightVertices[next].y),
-            collisionColor
-        );
-    }
-
-    // Dibujar pared superior
-    b2Vec2 topVertices[4] = {
-        {PIXEL_TO_METERS(-152), PIXEL_TO_METERS(240)},
-        {PIXEL_TO_METERS(-152), PIXEL_TO_METERS(-163)},
-        {PIXEL_TO_METERS(151), PIXEL_TO_METERS(-162)},
-        {PIXEL_TO_METERS(151), PIXEL_TO_METERS(240)}
-    };
-
-    for (int i = 0; i < 4; i++) {
-        int next = (i + 1) % 4;
-        DrawLine(
-            METERS_TO_PIXEL(topVertices[i].x), METERS_TO_PIXEL(topVertices[i].y),
-            METERS_TO_PIXEL(topVertices[next].x), METERS_TO_PIXEL(topVertices[next].y),
-            collisionColor
-        );
-    }
-
-    // Dibujar puntos en los vértices para verlos mejor
-    for (int i = 0; i < 4; i++) {
-        DrawCircle(
-            METERS_TO_PIXEL(leftVertices[i].x), METERS_TO_PIXEL(leftVertices[i].y),
-            3, RED
-        );
-        DrawCircle(
-            METERS_TO_PIXEL(rightVertices[i].x), METERS_TO_PIXEL(rightVertices[i].y),
-            3, BLUE
-        );
-        DrawCircle(
-            METERS_TO_PIXEL(topVertices[i].x), METERS_TO_PIXEL(topVertices[i].y),
-            3, GREEN
-        );
-    }
-}
 bool ModuleGame::CleanUp()
 {
     LOG("Unloading Game scene");
@@ -402,7 +330,12 @@ update_status ModuleGame::Update()
         { 100, 200, 60, 60 },
         { 30, 30 }, 0.0f, WHITE);
 
-    DrawCollisionShapes();
+    DrawTexturePro(tex_crate,
+        { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
+        { SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 60, 60 },  // <--- Esta es la línea modificada
+        { 30, 30 }, 0.0f, BLACK);
+
+ 
 
     return UPDATE_CONTINUE;
 }
