@@ -18,7 +18,7 @@ private:
     // Texturas
     Texture tex_ball;
     Texture tex_boardL;
-    Texture tex_boardR;
+    Texture tex_boardR2;
     Texture tex_game_back2;
     Texture tex_crate;
 

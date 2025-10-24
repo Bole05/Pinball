@@ -31,7 +31,7 @@ bool ModuleGame::Start()
     // Carga de texturas
     tex_ball = App->renderer->Load("Assets/ball0001.png");
     tex_boardL = App->renderer->Load("Assets/boardL.png");
-    tex_boardR = App->renderer->Load("Assets/boardR.png");
+    tex_boardR2 = App->renderer->Load("Assets/boardR2.png");
     tex_game_back2 = App->renderer->Load("Assets/game_back2.png");
     tex_crate = App->renderer->Load("Assets/crate.png");
 
@@ -268,7 +268,7 @@ bool ModuleGame::CleanUp()
     // Limpiar texturas
     UnloadTexture(tex_ball);
     UnloadTexture(tex_boardL);
-    UnloadTexture(tex_boardR);
+    UnloadTexture(tex_boardR2);
     UnloadTexture(tex_crate);
     UnloadTexture(tex_game_back2);
 
@@ -329,8 +329,8 @@ update_status ModuleGame::Update()
         RADTODEG * left_flipper->GetRotation(), WHITE);
 
     right_flipper->GetPhysicPosition(x, y);
-    DrawTexturePro(tex_boardR,
-        { 0, 0, (float)tex_boardR.width, (float)tex_boardR.height },
+    DrawTexturePro(tex_boardR2,
+        { 0, 0, (float)tex_boardR2.width, (float)tex_boardR2.height },
         { (float)x, (float)y, 120, 30 },
         { 60, 15 },
         RADTODEG * right_flipper->GetRotation(), WHITE);
