@@ -132,9 +132,20 @@ void ModuleGame::CreateWalls()
 {
     LOG("Creating pinball walls");
 
-    b2BodyDef wallBodyDef;
+ /*   b2BodyDef wallBodyDef;
     wallBodyDef.type = b2_staticBody;
     wallBodyDef.position.Set(0, 0);
+    b2Body* wallBody = App->physics->world->CreateBody(&wallBodyDef);*/
+
+    b2BodyDef wallBodyDef;
+    wallBodyDef.type = b2_staticBody;
+
+    // Establece la posición del cuerpo en el CENTRO de la pantalla (convertido a metros)
+    wallBodyDef.position.Set(
+        PIXEL_TO_METERS(SCREEN_WIDTH / 2),
+        PIXEL_TO_METERS(SCREEN_HEIGHT / 2)
+    );
+
     b2Body* wallBody = App->physics->world->CreateBody(&wallBodyDef);
 
     // === PARED IZQUIERDA ===
@@ -155,7 +166,7 @@ void ModuleGame::CreateWalls()
     };
 
     for (int i = 0; i < 11; i++) {
-        leftVertices[i].Set(PIXEL_TO_METERS(leftPoints[i * 2]), PIXEL_TO_METERS(leftPoints[i * 2 + 1]));
+        leftVertices[i].Set(PIXEL_TO_METERS(leftPoints[i * 2]), PIXEL_TO_METERS(leftPoints[i * 2 + 1 ]));
     }
 
     b2ChainShape leftChain;
@@ -214,24 +225,24 @@ void ModuleGame::CreateWalls()
         -122, -192,
         -96, -192,
         -97, -202,
-        -110, -217,
-        -113, -221,
-        -113, -226,
-        -109, -230,
-        108, -229,
-        112, -226,
-        112, -221,
-        96, -192,
-        118, -192,
-        124, -192,
-        130, -189,
-        138, -184,
-        143, -178,
-        146, -174,
-        149, -169,
-        150, -162,
-        151, 223,
-        151, 240
+        //-110, -217,
+        //-113, -221,
+        //-113, -226,
+        //-109, -230,
+        //108, -229,
+        //112, -226,
+        //112, -221,
+        //96, -192,
+        //118, -192,
+        //124, -192,
+        //130, -189,
+        //138, -184,
+        //143, -178,
+        //146, -174,
+        //149, -169,
+        //150, -162,
+        //151, 223,
+        //151, 240
         // Se ha eliminado el último punto {-152, 240} que duplicaba al primero
     };
 
