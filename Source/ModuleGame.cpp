@@ -4,7 +4,7 @@
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
-
+#include "raylib.h"
 // Necesario para las definiciones de joints
 #include "box2d/box2d.h"
 
@@ -138,18 +138,28 @@ void ModuleGame::CreateWalls()
     b2Body* wallBody = App->physics->world->CreateBody(&wallBodyDef);
 
     // === PARED IZQUIERDA ===
-    b2Vec2 leftVertices[10]; // 10 vértices
-    int leftPoints[20] = {  // 20 valores (10 x 2)
-        -130, -98, -109, -82, -107, 115, -70, 158, -65, 158,
-        -60, 146, -95, 101, -94, -96, -122, -117, -131, -115
+// === PARED IZQUIERDA ===
+    b2Vec2 leftVertices[11]; // 11 vértices
+    int leftPoints[22] = {  // 22 valores (11 x 2)
+        -130, -98,
+        -109, -82,
+        -107, 115,
+        -70, 158,
+        -65, 158,
+        -60, 146,
+        -95, 101,
+        -94, -96,
+        -122, -117,
+        -131, -115,
+        -131, -99
     };
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 11; i++) {
         leftVertices[i].Set(PIXEL_TO_METERS(leftPoints[i * 2]), PIXEL_TO_METERS(leftPoints[i * 2 + 1]));
     }
 
     b2ChainShape leftChain;
-    leftChain.CreateLoop(leftVertices, 10);
+    leftChain.CreateLoop(leftVertices, 11);
 
     b2FixtureDef leftFixture;
     leftFixture.shape = &leftChain;
@@ -158,18 +168,28 @@ void ModuleGame::CreateWalls()
     wallBody->CreateFixture(&leftFixture);
 
     // === PARED DERECHA ===
-    b2Vec2 rightVertices[11]; // 11 vértices
-    int rightPoints[22] = {  // 22 valores (11 x 2)
-        122, -116, 95, -97, 93, 115, 56, 158, 51, 158,
-        47, 146, 82, 101, 81, -96, 109, -117, 118, -115, 118, -99
+    b2Vec2 rightVertices[12]; // 12 vértices (Cambiado de 11)
+    int rightPoints[24] = {  // 24 valores (12 x 2) (Cambiado de 22)
+        122, -116,
+        95, -97,
+        95, 100,
+        60, 144,
+        61, 153,
+        64, 157,
+        70, 156,
+        109, 112,
+        108, -83,
+        130, -99,
+        131, -115,
+        123, -117
     };
 
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 12; i++) { // (Cambiado de 11)
         rightVertices[i].Set(PIXEL_TO_METERS(rightPoints[i * 2]), PIXEL_TO_METERS(rightPoints[i * 2 + 1]));
     }
 
     b2ChainShape rightChain;
-    rightChain.CreateLoop(rightVertices, 11);
+    rightChain.CreateLoop(rightVertices, 12);
 
     b2FixtureDef rightFixture;
     rightFixture.shape = &rightChain;
@@ -178,22 +198,49 @@ void ModuleGame::CreateWalls()
     wallBody->CreateFixture(&rightFixture);
 
     // === PARED SUPERIOR ===
-    b2Vec2 topVertices[20]; // 20 vértices
-    int topPoints[40] = {   // 40 valores (20 x 2)
-        -152, 240, -152, -163, -149, -169, -146, -174,
-        -143, -178, -138, -182, -133, -186, -127, -190,
-        -122, -192, -96, -192, -97, -202, -110, -217,
-        -113, -221, -113, -226, -109, -230, 108, -229,
-        112, -226, 112, -221, 96, -192, 118, -192
+ // === PARED SUPERIOR ===
+  // === PARED SUPERIOR ===
+    // === PARED SUPERIOR ===
+    b2Vec2 topVertices[29]; // 29 vértices (Cambiado de 30)
+    int topPoints[58] = {    // 58 valores (29 x 2) (Cambiado de 60)
+        -152, 240,
+        -152, -163,
+        -149, -169,
+        -146, -174,
+        -143, -178,
+        -138, -182,
+        -133, -186,
+        -127, -190,
+        -122, -192,
+        -96, -192,
+        -97, -202,
+        -110, -217,
+        -113, -221,
+        -113, -226,
+        -109, -230,
+        108, -229,
+        112, -226,
+        112, -221,
+        96, -192,
+        118, -192,
+        124, -192,
+        130, -189,
+        138, -184,
+        143, -178,
+        146, -174,
+        149, -169,
+        150, -162,
+        151, 223,
+        151, 240
+        // Se ha eliminado el último punto {-152, 240} que duplicaba al primero
     };
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 29; i++) { // (Cambiado de 30)
         topVertices[i].Set(PIXEL_TO_METERS(topPoints[i * 2]), PIXEL_TO_METERS(topPoints[i * 2 + 1]));
     }
 
     b2ChainShape topChain;
-    topChain.CreateLoop(topVertices, 20);
-
+    topChain.CreateLoop(topVertices, 29); // (Cambiado de 30)
     b2FixtureDef topFixture;
     topFixture.shape = &topChain;
     topFixture.restitution = 0.8f;
@@ -355,7 +402,6 @@ update_status ModuleGame::Update()
         { 100, 200, 60, 60 },
         { 30, 30 }, 0.0f, WHITE);
 
-    // 🔴 DIBUJAR LÍNEAS DE COLISIÓN (para debug)
     DrawCollisionShapes();
 
     return UPDATE_CONTINUE;
