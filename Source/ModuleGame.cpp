@@ -41,9 +41,41 @@ bool ModuleGame::Start()
     }
 
     // --- Creación de la Pelota ---
-    ball = App->physics->CreateCircle(400, 240, 15);
-    ball->body->GetFixtureList()->SetRestitution(0.8f);
-    ball->body->SetType(b2_dynamicBody);
+    //ball = App->physics->CreateCircle(400, 240, 15);
+    //ball->body->GetFixtureList()->SetRestitution(0.8f);
+    //ball->body->SetType(b2_dynamicBody);
+
+    //ball->body->SetBullet(true);
+
+
+    // 1. Creamos el círculo (cuerpo físico)
+    ball = App->physics->CreateCircle(400, 240, 15, b2_dynamicBody);
+
+    // 2. ¡Aquí implementamos las físicas!
+    //    Obtenemos la "fixture" (la forma y sus propiedades) de la pelota.
+    b2Fixture* ballFixture = ball->body->GetFixtureList();
+
+    // 3. Ajustamos las propiedades físicas:
+
+    // Densidad (Density): Controla la masa. Más densidad = más pesada.
+    // Una bola de 1.0f (la que tenías por defecto) es muy ligera.
+    ballFixture->SetDensity(1.0f); // Sube esto para que tenga más "peso"
+
+    // Fricción (Friction): Cuánto roza. 0.0f es sin fricción.
+    ballFixture->SetFriction(0.1f); // Muy baja fricción, para que ruede bien.
+
+    // Restitución (Restitution): ¡El rebote!
+    // 0.0f = no rebota. 1.0f = rebote perfecto.
+    ballFixture->SetRestitution(1.0f); // 0.8f es un buen valor, muy elástico.
+
+    // 4. MUY IMPORTANTE: Le decimos a Box2D que recalcule la masa
+    //    basándose en la nueva densidad que le hemos puesto.
+    ball->body->ResetMassData();
+
+    // 5. La hacemos "Bullet" para que no atraviese las paredes
+    //    (Esto lo mantienes de la solución anterior)
+    ball->body->SetBullet(true);
+
 
     CreateWalls();
 
@@ -174,8 +206,8 @@ void ModuleGame::CreateWalls()
 
     b2FixtureDef leftFixture;
     leftFixture.shape = &leftChain;
-    leftFixture.restitution = 0.8f;
-    leftFixture.friction = 0.3f;
+    leftFixture.restitution = 0.9f;
+    leftFixture.friction = 0.0f;
     wallBody->CreateFixture(&leftFixture);
 
     // === PARED DERECHA ===
@@ -204,8 +236,8 @@ void ModuleGame::CreateWalls()
 
     b2FixtureDef rightFixture;
     rightFixture.shape = &rightChain;
-    rightFixture.restitution = 0.8f;
-    rightFixture.friction = 0.3f;
+    rightFixture.restitution = 0.9f;
+    rightFixture.friction = 0.0f;
     wallBody->CreateFixture(&rightFixture);
 
     // === PARED SUPERIOR ===
@@ -254,8 +286,8 @@ void ModuleGame::CreateWalls()
     topChain.CreateLoop(topVertices, 29); // (Cambiado de 30)
     b2FixtureDef topFixture;
     topFixture.shape = &topChain;
-    topFixture.restitution = 0.8f;
-    topFixture.friction = 0.3f;
+    topFixture.restitution = 0.9f;
+    topFixture.friction = 0.0f;
     wallBody->CreateFixture(&topFixture);
 
     LOG("Walls created successfully.");
