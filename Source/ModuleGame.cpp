@@ -30,7 +30,7 @@ bool ModuleGame::Start()
 
     // Carga de texturas
     tex_ball = App->renderer->Load("Assets/ball0001.png");
-    tex_boardL = App->renderer->Load("Assets/boardL.png");
+    tex_boardL = App->renderer->Load("Assets/boardL2.png");
     tex_boardR2 = App->renderer->Load("Assets/boardR2.png");
     tex_game_back2 = App->renderer->Load("Assets/game_back2.png");
     tex_crate = App->renderer->Load("Assets/crate.png");
@@ -48,8 +48,8 @@ bool ModuleGame::Start()
     CreateWalls();
 
     // --- Creación de Flippers Físicos ---
-    int flipper_w = 60;
-    int flipper_h = 15;
+    int flipper_w = 56;
+    int flipper_h = 13;
 
     // Posiciones de pivote en píxeles
     int left_flipper_pivot_x = 340;

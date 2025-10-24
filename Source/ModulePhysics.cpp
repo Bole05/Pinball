@@ -478,5 +478,22 @@ void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int an
 	revoluteJointDef.lowerAngle = -25 * DEGTORAD;
 	revoluteJointDef.upperAngle = 25 * DEGTORAD;
 
+	// Habilitar el motor
+	revoluteJointDef.enableMotor = true;
+
+	// La velocidad que quieres que alcance (la pondrás a 0 y la cambiarás con el input)
+	revoluteJointDef.motorSpeed = 200.0f;
+
+	// ¡LA FUERZA MÁXIMA! Aumenta este valor para más "fuerza"
+	revoluteJointDef.maxMotorTorque = 10000000.0f; // Prueba con valores altos (ej: 1000, 5000)
+
+	// Guardar el joint para poder controlarlo
+	// Necesitarás guardar el joint en una variable miembro (ej: b2RevoluteJoint* left_flipper_joint;)
+	//left_flipper_joint = (b2RevoluteJoint*)world->CreateJoint(&revoluteJointDef);
+
 	world->CreateJoint(&revoluteJointDef);
 }
+
+
+
+
