@@ -48,14 +48,14 @@ bool ModuleGame::Start()
     CreateWalls();
 
     // --- Creación de Flippers Físicos ---
-    int flipper_w = 120;
-    int flipper_h = 30;
+    int flipper_w = 60;
+    int flipper_h = 15;
 
     // Posiciones de pivote en píxeles
-    int left_flipper_pivot_x = 260;
-    int left_flipper_pivot_y = 365;
-    int right_flipper_pivot_x = 540;
-    int right_flipper_pivot_y = 360;
+    int left_flipper_pivot_x = 340;
+    int left_flipper_pivot_y = 395;
+    int right_flipper_pivot_x = 460;
+    int right_flipper_pivot_y = 395;
 
     // 1. Crear cuerpo estático para anclar las articulaciones
     ground_anchor = App->physics->CreateRectangle(0, 0, 1, 1, b2_staticBody);
@@ -324,15 +324,15 @@ update_status ModuleGame::Update()
     left_flipper->GetPhysicPosition(x, y);
     DrawTexturePro(tex_boardL,
         { 0, 0, (float)tex_boardL.width, (float)tex_boardL.height },
-        { (float)x, (float)y, 120, 30 },
-        { 60, 15 },
+        { (float)x, (float)y, 60, 15 },
+        { 30, 7.5 },
         RADTODEG * left_flipper->GetRotation(), WHITE);
 
     right_flipper->GetPhysicPosition(x, y);
     DrawTexturePro(tex_boardR2,
         { 0, 0, (float)tex_boardR2.width, (float)tex_boardR2.height },
-        { (float)x, (float)y, 120, 30 },
-        { 60, 15 },
+        { (float)x, (float)y, 60, 15 },
+        { 30, 7.5 },
         RADTODEG * right_flipper->GetRotation(), WHITE);
 
     // Crate
