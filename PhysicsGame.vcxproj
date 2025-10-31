@@ -93,6 +93,9 @@
     <LocalDebuggerWorkingDirectory>$(SolutionDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>false</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -102,15 +105,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
+<<<<<<< HEAD
       <AdditionalIncludeDirectories>$(SolutionDir)Source\external\raylib\src;$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+=======
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source\external\raylib\src</AdditionalIncludeDirectories>
+>>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -122,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
-      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\raylib\src;$(SolutionDir)Source\external\box2d\include%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source\external\raylib\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
