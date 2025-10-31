@@ -384,10 +384,10 @@ bool ModuleGame::Start()
     int flipper_h = 13;
 
     // Posiciones de pivote en píxeles
-    int left_flipper_pivot_x = 338;
+    int left_flipper_pivot_x = 340;
     int left_flipper_pivot_y = 395;
-    int right_flipper_pivot_x = 462;
-    int right_flipper_pivot_y = 395;
+    int right_flipper_pivot_x = 460;
+    int right_flipper_pivot_y = 295;
 
     // 1. Crear cuerpo estático para anclar las articulaciones
     ground_anchor = App->physics->CreateRectangle(0, 0, 1, 1, b2_staticBody);
@@ -667,11 +667,18 @@ update_status ModuleGame::Update()
         { 30, 7.5 },
         RADTODEG * right_flipper->GetRotation(), WHITE);
 
-    
+    // Crate
     DrawTexturePro(tex_crate,
         { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
         { 100, 200, 60, 60 },
         { 30, 30 }, 0.0f, WHITE);
+
+    DrawTexturePro(tex_crate,
+        { 0, 0, (float)tex_crate.width, (float)tex_crate.height },
+        { SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 60, 60 },  // <--- Esta es la línea modificada
+        { 30, 30 }, 0.0f, BLACK);
+
+ 
 
     return UPDATE_CONTINUE;
 >>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
