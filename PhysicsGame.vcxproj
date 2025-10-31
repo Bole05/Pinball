@@ -106,10 +106,14 @@
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <AdditionalIncludeDirectories>$(SolutionDir)Source\external\raylib\src;$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 =======
       <AdditionalIncludeDirectories>$(SolutionDir)Source\external\box2d\include;$(SolutionDir)Source\external\raylib\src</AdditionalIncludeDirectories>
 >>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
+=======
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\external\raylib\src;$(SolutionDir)Source\external\box2d\include%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+>>>>>>> parent of a0ed02b (iu)
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -195,7 +199,6 @@
     <ClInclude Include="Source/ModuleWindow.h" />
     <ClInclude Include="Source/p2Point.h" />
     <ClInclude Include="Source\ModuleGame.h" />
-    <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -207,7 +210,6 @@
     <ClCompile Include="Source/ModuleRender.cpp" />
     <ClCompile Include="Source/ModuleWindow.cpp" />
     <ClCompile Include="Source\ModuleGame.cpp" />
-    <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,84 +1,104 @@
-#include "Application.h"
+
+#include "Module.h"
 #include "ModuleWindow.h"
 #include "ModuleRender.h"
-#include "ModuleGame.h"
-#include "ModulePhysics.h"
 #include "ModuleAudio.h"
+#include "ModulePhysics.h"
+#include "ModuleGame.h"
 
+#include "Application.h"
 
 Application::Application()
 {
-	renderer = new ModuleRender(this);
 	window = new ModuleWindow(this);
+	renderer = new ModuleRender(this);
+	audio = new ModuleAudio(this, true);
 	physics = new ModulePhysics(this);
-	audio = new ModuleAudio(this);
+	scene_intro = new ModuleGame(this);
 
-	game = new ModuleGame(this);
+	// The order of calls is very important!
+	// Modules will Init() Start() and Update in this order
+	// They will CleanUp() in reverse order
 
-	// El orden de las llamadas es muy importante.
-	// Los módulos se inicializarán, iniciarán y actualizarán en este orden.
-	// Se limpiarán en orden inverso.
-
-	// Módulos principales
+	// Main Modules
 	AddModule(window);
 	AddModule(physics);
 	AddModule(audio);
+	
+	// Scenes
+	AddModule(scene_intro);
 
+	// Rendering happens at the end
 	AddModule(renderer);
-
-	// Escenas
-	AddModule(game);
 }
 
 Application::~Application()
 {
-	for (std::vector<Module*>::reverse_iterator item = list_modules.rbegin(); item != list_modules.rend(); ++item)
+	for (auto it = list_modules.rbegin(); it != list_modules.rend(); ++it)
 	{
-		delete (*item);
+		Module* item = *it;
+		delete item;
 	}
+	list_modules.clear();
+	
 }
 
 bool Application::Init()
 {
 	bool ret = true;
 
-	for (Module* item : list_modules)
+	// Call Init() in all modules
+	for (auto it = list_modules.begin(); it != list_modules.end() && ret; ++it)
 	{
-		ret = item->Init();
-		if (ret == false) break;
+		Module* module = *it;
+		ret = module->Init();
 	}
 
-	for (Module* item : list_modules)
-	{
-		ret = item->Start();
-		if (ret == false) break;
-	}
+	// After all Init calls we call Start() in all modules
+	LOG("Application Start --------------");
 
+	for (auto it = list_modules.begin(); it != list_modules.end() && ret; ++it)
+	{
+		Module* module = *it;
+		ret = module->Start();
+	}
+	
 	return ret;
 }
 
-// Llamar a los PreUpdate, Update y PostUpdate de todos los módulos
+// Call PreUpdate, Update and PostUpdate on all modules
 update_status Application::Update()
 {
 	update_status ret = UPDATE_CONTINUE;
 
-	for (Module* item : list_modules)
+	for (auto it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; ++it)
 	{
-		ret = item->PreUpdate();
-		if (ret != UPDATE_CONTINUE) break;
+		Module* module = *it;
+		if (module->IsEnabled())
+		{
+			ret = module->PreUpdate();
+		}
 	}
 
-	for (Module* item : list_modules)
+	for (auto it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; ++it)
 	{
-		ret = item->Update();
-		if (ret != UPDATE_CONTINUE) break;
+		Module* module = *it;
+		if (module->IsEnabled())
+		{
+			ret = module->Update();
+		}
 	}
 
-	for (Module* item : list_modules)
+	for (auto it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; ++it)
 	{
-		ret = item->PostUpdate();
-		if (ret != UPDATE_CONTINUE) break;
+		Module* module = *it;
+		if (module->IsEnabled())
+		{
+			ret = module->PostUpdate();
+		}
 	}
+
+	if (WindowShouldClose()) ret = UPDATE_STOP;
 
 	return ret;
 }
@@ -86,16 +106,16 @@ update_status Application::Update()
 bool Application::CleanUp()
 {
 	bool ret = true;
-
-	for (std::vector<Module*>::reverse_iterator item = list_modules.rbegin(); item != list_modules.rend(); ++item)
+	for (auto it = list_modules.rbegin(); it != list_modules.rend() && ret; ++it)
 	{
-		ret = (*item)->CleanUp();
+		Module* item = *it;
+		ret = item->CleanUp();
 	}
-
+	
 	return ret;
 }
 
 void Application::AddModule(Module* mod)
 {
-	list_modules.push_back(mod);
+	list_modules.emplace_back(mod);
 }

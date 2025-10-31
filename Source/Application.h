@@ -1,33 +1,41 @@
 #pragma once
 
-#include <vector>
 #include "Globals.h"
-#include "Module.h"
+#include "Timer.h"
+#include <vector>
 
-// --- Declaraciones adelantadas (Forward declarations) ---
-// Le decimos al compilador que estas clases existen sin necesidad de incluir todo el .h
-// Esto es VITAL para evitar errores de "inclusión circular".
+class Module;
 class ModuleWindow;
 class ModuleRender;
-class ModuleGame;
-class ModulePhysics;
 class ModuleAudio;
-class ModulePlayer; // <--- Así se declara que la clase ModulePlayer existe.
+class ModulePhysics;
+class ModuleGame;
 
 class Application
 {
 public:
-	ModuleWindow* window;
+
 	ModuleRender* renderer;
-	ModuleGame* game;
-	ModulePhysics* physics;
+	ModuleWindow* window;
 	ModuleAudio* audio;
-	ModulePlayer* player; // <--- Ahora podemos declarar un puntero a ella.
+	ModulePhysics* physics;
+	ModuleGame* scene_intro;
 
 private:
+
 	std::vector<Module*> list_modules;
+    uint64 frame_count = 0;
+
+	Timer ptimer;
+	Timer startup_time;
+	Timer frame_time;
+	Timer last_sec_frame_time;
+
+	uint32 last_sec_frame_count = 0;
+	uint32 prev_last_sec_frame_count = 0;
 
 public:
+
 	Application();
 	~Application();
 
@@ -36,10 +44,6 @@ public:
 	bool CleanUp();
 
 private:
-	void AddModule(Module* mod);
-};
 
-// --- Variable Global ---
-// Hacemos que 'App' sea una variable global accesible desde cualquier parte del código
-// que incluya "Application.h".
-extern Application* App;
+	void AddModule(Module* module);
+};

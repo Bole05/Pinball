@@ -1,12 +1,17 @@
 ï»¿#include "Globals.h"
 #include "Application.h"
+#include "ModuleRender.h"
 #include "ModulePhysics.h"
 
-// ... (todo tu código existente de ModulePhysics.cpp va aquí) ...
+#include "p2Point.h"
 
-// AÑADE ESTA FUNCIÓN AL FINAL DE TU ARCHIVO ModulePhysics.cpp
-PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height)
+#include <math.h>
+
+
+
+ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
     b2BodyDef body;
     body.type = b2_staticBody;
@@ -16,19 +21,31 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	debug = true;
 }
 >>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
+=======
+	debug = true;
+}
+>>>>>>> parent of a0ed02b (iu)
 
-    b2Body* b = world->CreateBody(&body);
+// Destructor
+ModulePhysics::~ModulePhysics()
+{
+}
 
-    b2PolygonShape box;
-    box.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
+//bool ModulePhysics::Start()
+//{
+	//LOG("Creating Physics 2D environment");
+	//
+	//world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
+	//// TODO 3: You need to make ModulePhysics class a contact listener
 
-    b2FixtureDef fixture;
-    fixture.shape = &box;
-    fixture.density = 1.0f;
-    fixture.isSensor = true; // Esto lo convierte en un sensor
+	//// big static circle as "ground" in the middle of the screen
+	//int x = (int)(SCREEN_WIDTH / 2);
+	//int y = (int)(SCREEN_HEIGHT / 1.5f);
+	//int diameter = SCREEN_WIDTH / 2;
 
-    b->CreateFixture(&fixture);
+	//return true;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     PhysBody* pbody = new PhysBody();
     pbody->body = b;
@@ -148,11 +165,176 @@ bool ModulePhysics::Start()
 
 	return true;
 }
+=======
+	bool ModulePhysics::Start()
+	{
+		LOG("Creating Physics 2D environment");
+
+		world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
+		world->SetContactListener(this);
+
+		// Escala de conversión píxel <-> metro
+		const float SCALE = 0.01f; // 1 px = 0.01 m
+
+		// ---------------------------
+		// ?? Paredes exteriores del tablero
+		// ---------------------------
+		b2BodyDef wallsDef;
+		wallsDef.type = b2_staticBody;
+		wallsDef.position.Set(0, 0);
+		b2Body* walls = world->CreateBody(&wallsDef);
+
+		b2Vec2 wallVertices[] = {
+			{40 * SCALE, 310 * SCALE},   // esquina inferior izquierda
+			{40 * SCALE, 60 * SCALE},    // lado izquierdo
+			{120 * SCALE, 20 * SCALE},   // curva izquierda superior
+			{380 * SCALE, 20 * SCALE},   // parte superior derecha
+			{470 * SCALE, 60 * SCALE},   // lado derecho
+			{470 * SCALE, 310 * SCALE},  // esquina inferior derecha
+		};
+
+		b2ChainShape wallShape;
+		wallShape.CreateLoop(wallVertices, 6);
+
+		b2FixtureDef wallFixture;
+		wallFixture.shape = &wallShape;
+		walls->CreateFixture(&wallFixture);
+
+		// ---------------------------
+		// ?? Bumpers (círculos rojos)
+		// ---------------------------
+		b2Vec2 bumpers[] = {
+			{256 * SCALE, 150 * SCALE},
+			{210 * SCALE, 170 * SCALE},
+			{300 * SCALE, 170 * SCALE},
+		};
+		float bumperRadius = 18 * SCALE;
+
+		for (int i = 0; i < 3; i++)
+		{
+			b2BodyDef bumperDef;
+			bumperDef.type = b2_staticBody;
+			bumperDef.position = bumpers[i];
+
+			b2Body* bumper = world->CreateBody(&bumperDef);
+
+			b2CircleShape bumperShape;
+			bumperShape.m_radius = bumperRadius;
+
+			b2FixtureDef bumperFix;
+			bumperFix.shape = &bumperShape;
+			bumperFix.restitution = 1.2f; // rebota fuerte
+			bumper->CreateFixture(&bumperFix);
+		}
+
+		// ---------------------------
+		// ?? Diana izquierda
+		// ---------------------------
+		b2BodyDef targetLeftDef;
+		targetLeftDef.type = b2_staticBody;
+		targetLeftDef.position.Set(150 * SCALE, 130 * SCALE);
+		b2Body* targetLeft = world->CreateBody(&targetLeftDef);
+
+		b2CircleShape targetLeftShape;
+		targetLeftShape.m_radius = 15 * SCALE;
+
+		b2FixtureDef targetLeftFix;
+		targetLeftFix.shape = &targetLeftShape;
+		targetLeftFix.restitution = 0.9f;
+		targetLeft->CreateFixture(&targetLeftFix);
+
+		// ---------------------------
+		// ?? Diana superior (amarilla)
+		// ---------------------------
+		b2BodyDef targetTopDef;
+		targetTopDef.type = b2_staticBody;
+		targetTopDef.position.Set(256 * SCALE, 60 * SCALE);
+		b2Body* targetTop = world->CreateBody(&targetTopDef);
+
+		b2CircleShape targetTopShape;
+		targetTopShape.m_radius = 25 * SCALE;
+
+		b2FixtureDef targetTopFix;
+		targetTopFix.shape = &targetTopShape;
+		targetTopFix.restitution = 1.0f;
+		targetTop->CreateFixture(&targetTopFix);
+
+		// ---------------------------
+		// ?? Flippers
+		// ---------------------------
+		b2BodyDef groundDef;
+		b2Body* ground = world->CreateBody(&groundDef);
+
+		b2Vec2 leftFlipperPivot = { 200 * SCALE, 280 * SCALE };
+		b2Vec2 rightFlipperPivot = { 312 * SCALE, 280 * SCALE };
+		float flipperLength = 45 * SCALE;
+
+		// Flipper izquierdo
+		b2BodyDef leftFlipperDef;
+		leftFlipperDef.type = b2_dynamicBody;
+		leftFlipperDef.position = leftFlipperPivot;
+		b2Body* flipperLeft = world->CreateBody(&leftFlipperDef);
+
+		b2PolygonShape flipperLeftShape;
+		flipperLeftShape.SetAsBox(flipperLength, 5 * SCALE);
+		flipperLeft->CreateFixture(&flipperLeftShape, 1.0f);
+
+		b2RevoluteJointDef jointLeft;
+		jointLeft.bodyA = ground;
+		jointLeft.bodyB = flipperLeft;
+		jointLeft.localAnchorA = leftFlipperPivot;
+		jointLeft.localAnchorB = { 0, 0 };
+		jointLeft.enableLimit = true;
+		jointLeft.lowerAngle = -0.3f;
+		jointLeft.upperAngle = 0.3f;
+		world->CreateJoint(&jointLeft);
+
+		// Flipper derecho
+		b2BodyDef rightFlipperDef;
+		rightFlipperDef.type = b2_dynamicBody;
+		rightFlipperDef.position = rightFlipperPivot;
+		b2Body* flipperRight = world->CreateBody(&rightFlipperDef);
+
+		b2PolygonShape flipperRightShape;
+		flipperRightShape.SetAsBox(flipperLength, 5 * SCALE);
+		flipperRight->CreateFixture(&flipperRightShape, 1.0f);
+
+		b2RevoluteJointDef jointRight;
+		jointRight.bodyA = ground;
+		jointRight.bodyB = flipperRight;
+		jointRight.localAnchorA = rightFlipperPivot;
+		jointRight.localAnchorB = { 0, 0 };
+		jointRight.enableLimit = true;
+		jointRight.lowerAngle = -0.3f;
+		jointRight.upperAngle = 0.3f;
+		world->CreateJoint(&jointRight);
+
+		// ---------------------------
+		// ? Bola inicial
+		// ---------------------------
+		b2BodyDef ballDef;
+		ballDef.type = b2_dynamicBody;
+		ballDef.position.Set(256 * SCALE, 250 * SCALE);
+		b2Body* ball = world->CreateBody(&ballDef);
+
+		b2CircleShape ballShape;
+		ballShape.m_radius = 8 * SCALE;
+
+		b2FixtureDef ballFix;
+		ballFix.shape = &ballShape;
+		ballFix.density = 0.5f;
+		ballFix.restitution = 0.8f;
+		ball->CreateFixture(&ballFix);
+
+		return true;
+	}
+>>>>>>> parent of a0ed02b (iu)
 //}
 
 
 update_status ModulePhysics::PreUpdate()
 {
+<<<<<<< HEAD
 	float timeStep = 1.0f / 60.0f;
 	int32 velocityIterations = 10;
 	int32 positionIterations = 8;
@@ -165,11 +347,21 @@ update_status ModulePhysics::PreUpdate()
 }
 
 PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType type)
+=======
+
+	return UPDATE_CONTINUE;
+}
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
+>>>>>>> parent of a0ed02b (iu)
 {
 	PhysBody* pbody = new PhysBody();
 
 	b2BodyDef body;
+<<<<<<< HEAD
 	body.type = type;
+=======
+	body.type = b2_dynamicBody;
+>>>>>>> parent of a0ed02b (iu)
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
 
@@ -191,10 +383,17 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType type)
 	return pbody;
 }
 
+<<<<<<< HEAD
 PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2BodyType type)
 {
 	b2BodyDef body;
 	body.type = type;
+=======
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
+{
+	b2BodyDef body;
+	body.type = b2_dynamicBody;
+>>>>>>> parent of a0ed02b (iu)
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -217,10 +416,17 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2
 	return pbody;
 }
 
+<<<<<<< HEAD
 PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, b2BodyType type)
 {
 	b2BodyDef body;
 	body.type = type;
+=======
+PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
+{
+	b2BodyDef body;
+	body.type = b2_dynamicBody;
+>>>>>>> parent of a0ed02b (iu)
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -252,6 +458,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, 
 	return pbody;
 }
 
+<<<<<<< HEAD
 PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2BodyType type)
 {
 	b2BodyDef body;
@@ -290,6 +497,12 @@ PhysBody* ModulePhysics::CreatePolygon(int x, int y, int* points, int size, b2Bo
 update_status ModulePhysics::PostUpdate()
 {
 
+=======
+// 
+update_status ModulePhysics::PostUpdate()
+{
+	
+>>>>>>> parent of a0ed02b (iu)
 
 	if (IsKeyPressed(KEY_F1))
 	{
@@ -303,7 +516,11 @@ update_status ModulePhysics::PostUpdate()
 
 	// Bonus code: this will iterate all objects in the world and draw the circles
 	// You need to provide your own macro to translate meters to pixels
+<<<<<<< HEAD
 	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
+=======
+	/*for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
+>>>>>>> parent of a0ed02b (iu)
 	{
 		for(b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
 		{
@@ -314,7 +531,11 @@ update_status ModulePhysics::PostUpdate()
 				{
 					b2CircleShape* shape = (b2CircleShape*)f->GetShape();
 					b2Vec2 pos = f->GetBody()->GetPosition();
+<<<<<<< HEAD
 
+=======
+					
+>>>>>>> parent of a0ed02b (iu)
 					DrawCircle(METERS_TO_PIXELS(pos.x), METERS_TO_PIXELS(pos.y), (float)METERS_TO_PIXELS(shape->m_radius), Color{0, 0, 0, 128});
 				}
 				break;
@@ -372,11 +593,19 @@ update_status ModulePhysics::PostUpdate()
 				break;
 			}
 
+<<<<<<< HEAD
 
 		}
 	}
 
 
+=======
+			
+		}
+	}//*/
+
+	
+>>>>>>> parent of a0ed02b (iu)
 	return UPDATE_CONTINUE;
 }
 
@@ -389,7 +618,11 @@ bool ModulePhysics::CleanUp()
 	LOG("Destroying physics world");
 
 	// Delete the whole physics world!
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> parent of a0ed02b (iu)
 
 	return true;
 }
@@ -469,6 +702,7 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if (b && b->listener) {
 		b->listener->OnCollision(b, a);
 	}
+<<<<<<< HEAD
 }
 // AÃ±ade esta funciÃ³n completa al final del archivo
 void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int anchor_x, int anchor_y)
@@ -503,3 +737,6 @@ void ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, int an
 
 
 >>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
+=======
+}
+>>>>>>> parent of a0ed02b (iu)
