@@ -29,13 +29,32 @@ enum update_status
 	UPDATE_ERROR
 };
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+// --- Constantes de configuración ---
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 900
+#define SCREEN_SIZE 1
+#define WIN_FULLSCREEN false
+#define WIN_RESIZABLE false
+#define WIN_BORDERLESS false
+=======
 // Configuration -----------
 #define SCREEN_WIDTH		 800
 #define SCREEN_HEIGHT		  480
+=======
+// Configuration -----------
+#define SCREEN_WIDTH		 320
+#define SCREEN_HEIGHT		  512
+>>>>>>> parent of a0ed02b (iu)
 #define SCREEN_SIZE				1
 #define WIN_FULLSCREEN		false
 #define WIN_RESIZABLE		false
 #define WIN_BORDERLESS		false
+<<<<<<< HEAD
+>>>>>>> 73e9d37883cb79185e99d24dbab9d33025fead90
+=======
+>>>>>>> parent of a0ed02b (iu)
 #define WIN_FULLSCREEN_DESKTOP false
 #define VSYNC				true
 #define TITLE "Physics 2D Playground"
