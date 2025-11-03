@@ -313,7 +313,7 @@ bool ModuleGame::CleanUp()
 update_status ModuleGame::Update()
 {
     // --- Controles de los flippers ---
-    float motor_speed = 10.0f;
+    float motor_speed = 50.0f;
 
     if (IsKeyDown(KEY_LEFT))
     {
